@@ -82,4 +82,5 @@ var TACKLE_COLOR = "rgb( 255, 136, 127 )";
 var TACKLE_FAULT_COLOR = "rgb( 79, 159, 159 )";
 var FOUL_CHARGED_COLOR = "rgb( 0, 127, 0 )";
 var POINTTO_COLOR = "rgb( 255, 0, 191 )";
+var GOAL_COLOR = "rgb( 0, 0, 0 )";
 

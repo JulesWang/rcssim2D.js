@@ -38,7 +38,7 @@ FieldPainter.prototype.draw = function()
     this.drawLines();
     this.drawPenaltyAreaLines();
     this.drawGoalAreaLines();
-    //this.drawGoals( painter );
+    this.drawGoals();
 
     /*
     if ( Options.showFlag )
@@ -184,31 +184,24 @@ FieldPainter.prototype.drawGoalAreaLines = function() {
 }
 
 /*-------------------------------------------------------------------*/
-/*!
-
-void
-FieldPainter::drawGoals( QPainter & painter ) const
-{
-    const Options & opt = Options::instance();
-
-    // set gdi objects
-    painter.setPen( Qt::black );
-    painter.setBrush( Qt::black );
-
+FieldPainter.prototype.drawGoals = function() {
     // set coordinates param
-    int goal_top_y = opt.screenY( - Options::GOAL_WIDTH*0.5 );
-    int goal_size_x = opt.scale( Options::GOAL_DEPTH );
-    int goal_size_y = opt.scale( Options::GOAL_WIDTH );
+    var goal_top_y =  -GOAL_WIDTH*0.5;
+    //var goal_size_x = GOAL_DEPTH;
+    //var goal_size_y = GOAL_WIDTH;
 
-    int post_top_y = opt.screenY( - Options::GOAL_WIDTH*0.5 - Options::GOAL_POST_RADIUS*2.0 );
-    int post_bottom_y = opt.screenY( + Options::GOAL_WIDTH*0.5 );
-    int post_diameter = opt.scale( Options::GOAL_POST_RADIUS*2.0 );
+    var post_top_y =  -GOAL_WIDTH*0.5 - GOAL_POST_RADIUS*2.0;
+    var post_bottom_y = GOAL_WIDTH*0.5;
+    var post_diameter = GOAL_POST_RADIUS*2.0;
+
+    var left_goal = { x:-PITCH_HALF_LENGTH - GOAL_DEPTH  - 1,
+                      y:goal_top_y,
+                      w:GOAL_DEPTH,
+                      h:GOAL_WIDTH,
+                    };
 
     // left goal
-    painter.drawRect( opt.screenX( - Options::PITCH_HALF_LENGTH - Options::GOAL_DEPTH ) - 1,
-                      goal_top_y,
-                      goal_size_x,
-                      goal_size_y );
+    this.painter.fillRect( GOAL_COLOR, left_goal);      /*
     if ( post_diameter >= 1 )
     {
         int post_x = opt.screenX( - Options::PITCH_HALF_LENGTH );
@@ -221,11 +214,17 @@ FieldPainter::drawGoals( QPainter & painter ) const
                              post_diameter,
                              post_diameter );
     }
+    */
+    var right_goal = { x:PITCH_HALF_LENGTH + 1,
+                       y:goal_top_y,
+                       w:GOAL_DEPTH,
+                       h:GOAL_WIDTH,
+                    };
+
     // right goal
-    painter.drawRect( opt.screenX( Options::PITCH_HALF_LENGTH ) + 1,
-                      goal_top_y,
-                      goal_size_x,
-                      goal_size_y );
+    this.painter.fillRect( GOAL_COLOR, right_goal);
+
+    /*
     if ( post_diameter >= 1 )
     {
         int post_x = opt.screenX( Options::PITCH_HALF_LENGTH - Options::GOAL_POST_RADIUS*2.0 );
@@ -238,6 +237,7 @@ FieldPainter::drawGoals( QPainter & painter ) const
                              post_diameter,
                              post_diameter );
     }
+    */
 }
 
 /*-------------------------------------------------------------------*/

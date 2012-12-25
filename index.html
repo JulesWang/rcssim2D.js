@@ -10,10 +10,11 @@
                 <script type="text/javascript" src="./options.js"></script>
                 <script type="text/javascript" src="./painter.js"></script>
                 <script type="text/javascript" src="./field_painter.js"></script>
+                <script type="text/javascript" src="./score_board_painter.js"></script>
         </head>
 	<body>
 
-		<canvas id="myCanvas" width="1280" height="720" style="border:1px solid #c3c3c3; margin:auto;display:block;">
+		<canvas id="myCanvas" width="1280" height="960" style="border:1px solid #c3c3c3; margin:auto;display:block;">
 			Your browser does not support the HTML5 canvas tag.
 		</canvas>
 
@@ -26,7 +27,9 @@
 
 			painter = new Painter(ctx, g_width, g_height);
 			fp = new FieldPainter(painter);
+			sbp = new ScoreBoardPainter(painter);
 			fp.draw();
+			sbp.draw();
 
 		</script>
 	</body>

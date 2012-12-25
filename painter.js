@@ -33,6 +33,13 @@ Painter.prototype.drawArc = function(color, x, y, r, sAngle, eAngle) {
     this.ctx.stroke();
 }
 
+Painter.prototype.drawText = function(color, font, text, x, y) {
+    this.ctx.fillStyle=color;
+    this.ctx.font=font;
+    x = x - this.ctx.measureText(text).width / 2;
+    this.ctx.fillText(text, this.xscreen(x), this.yscreen(y));
+}
+
 Painter.prototype.xscreen = function(x)  {
     return x+this.w/2;
 }
