@@ -11,6 +11,8 @@
                 <script type="text/javascript" src="./painter.js"></script>
                 <script type="text/javascript" src="./field_painter.js"></script>
                 <script type="text/javascript" src="./score_board_painter.js"></script>
+                <script type="text/javascript" src="./player_painter.js"></script>
+                <script type="text/javascript" src="./ball_painter.js"></script>
         </head>
 	<body>
 
@@ -28,8 +30,17 @@
 			painter = new Painter(ctx, g_width, g_height);
 			fp = new FieldPainter(painter);
 			sbp = new ScoreBoardPainter(painter);
+			pp = new PlayerPainter(painter);
+			bp = new BallPainter(painter);
 			fp.draw();
 			sbp.draw();
+			var players = [
+					{x: 100 , y: 100 , side: 'r', bodyDir: Math.PI}, 
+					{x: -100, y: -100, side: 'l', bodyDir: 0}, 
+				      ];
+			pp.draw(players);
+			var ball = {x:0, y:0};
+			bp.draw(players);
 
 		</script>
 	</body>

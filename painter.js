@@ -33,6 +33,22 @@ Painter.prototype.drawArc = function(color, x, y, r, sAngle, eAngle) {
     this.ctx.stroke();
 }
 
+Painter.prototype.fillArc = function(color, x, y, r, sAngle, eAngle) {
+    this.ctx.fillStyle=color;
+    this.ctx.beginPath();
+    this.ctx.arc(this.xscreen(x), this.yscreen(y), r, sAngle, eAngle);
+    this.ctx.fill();
+}
+
+Painter.prototype.drawCircle = function(color, x, y, r, sAngle, eAngle) {
+    this.drawArc(color, x, y, r, 0, 2*Math.PI);
+}
+
+Painter.prototype.fillCircle = function(color, x, y, r, sAngle, eAngle) {
+    this.fillArc(color, x, y, r, 0, 2*Math.PI);
+}
+
+
 Painter.prototype.drawText = function(color, font, text, x, y) {
     this.ctx.fillStyle=color;
     this.ctx.font=font;
