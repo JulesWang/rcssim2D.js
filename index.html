@@ -3,45 +3,20 @@
         <head>
                 <meta charset="utf-8">
                 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-                <title>RoboCup Soccer Simulator 2D</title>
-                <meta name="description" content="RoboCup Soccer Simulator 2D">
+                <title>Soccer Simulator 2D</title>
+                <meta name="description" content="Soccer Simulator 2D">
                 <meta name="viewport" content="width=device-width">
 
-                <script type="text/javascript" src="./options.js"></script>
-                <script type="text/javascript" src="./painter.js"></script>
-                <script type="text/javascript" src="./field_painter.js"></script>
-                <script type="text/javascript" src="./score_board_painter.js"></script>
-                <script type="text/javascript" src="./player_painter.js"></script>
-                <script type="text/javascript" src="./ball_painter.js"></script>
+                <script type="text/javascript" src="./all.js"></script>
         </head>
 	<body>
 
-		<canvas id="myCanvas" width="1280" height="960" style="border:1px solid #c3c3c3; margin:auto;display:block;">
+		<canvas id="myCanvas" width="1280" height="700" style="border:1px solid #c3c3c3; margin:auto;display:block;">
 			Your browser does not support the HTML5 canvas tag.
 		</canvas>
 
 		<script>
-			var c = document.getElementById("myCanvas");
-			var ctx = c.getContext("2d");
-
-			var g_width = c.getAttribute("width");
-			var g_height = c.getAttribute("height");
-
-			painter = new Painter(ctx, g_width, g_height);
-			fp = new FieldPainter(painter);
-			sbp = new ScoreBoardPainter(painter);
-			pp = new PlayerPainter(painter);
-			bp = new BallPainter(painter);
-			fp.draw();
-			sbp.draw();
-			var players = [
-					{x: 100 , y: 100 , side: 'r', bodyDir: Math.PI}, 
-					{x: -100, y: -100, side: 'l', bodyDir: 0}, 
-				      ];
-			pp.draw(players);
-			var ball = {x:0, y:0};
-			bp.draw(players);
-
+                        window.onload = function() {main();}
 		</script>
 	</body>
 </html>
