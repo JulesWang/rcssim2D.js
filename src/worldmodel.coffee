@@ -19,6 +19,11 @@ class WorldModel
         update: () ->
                 for obj in @objs
                         obj.update() if obj.update
+                wm =
+                    redplayers: @redplayers
+                    blueplayers: @blueplayers
+                    ball: @ball
+                @pitch.checkrules(wm)
                 for i in [0...@objs.length]
                         for j in [i+1...@objs.length]
                                 @collide(@objs[i], @objs[j])

@@ -26,7 +26,7 @@ Vector2d.subtract  =  (a, b) ->
 # @returns {Array} vector
 #/
 Vector2d.add  =  (a, b) ->
-   return [a[0] + b[0], a[1] + b[1]];
+   return [a[0] + b[0], a[1] + b[1]]
 
 
 
@@ -58,7 +58,7 @@ Vector2d.divide  =  (a, s) ->
 # @returns {Number} length of vector
 #/
 Vector2d.len  =  (v) ->
-   return Math.sqrt(v[0]*v[0] + v[1]*v[1]);
+   return Math.sqrt(v[0]*v[0] + v[1]*v[1])
 
 
 

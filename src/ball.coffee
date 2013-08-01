@@ -15,7 +15,7 @@ class Ball
                 a = Vector2d.multiply(unitdir, force/@m)
                 dv = a
                 @v = Vector2d.add(@v, dv)
-                console.log(@v)
+                #console.log(@v)
                 #if Vector2d.len(@v) >
 
         render: (canvas) ->

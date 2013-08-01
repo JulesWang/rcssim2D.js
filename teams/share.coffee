@@ -1,0 +1,3 @@
+Client = {}
+
+Client.params = {}

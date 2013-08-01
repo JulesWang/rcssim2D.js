@@ -1,7 +1,7 @@
 
 main = () ->
         width = 1280.0
-        height = 720.0
+        height = 800.0
         playernum = 11
 
         c = document.getElementById("myCanvas")
@@ -30,6 +30,7 @@ main = () ->
 
         pitch = new Pitch()
         world.register(pitch)
+        world.pitch = pitch
 
         ball = new Ball(0, 0)
         world.register(ball)
@@ -39,11 +40,13 @@ main = () ->
         blueteamname = 'bar'
 
         for i in [0...11]
-                player = new Player([-500+i*30, 360], 0, 'red', world, redteamname)
+                player = new Player([-500+i*30, 360], 0, 'red', world, redteamname, i+1)
+                player.ai = Client.foo
                 world.register(player)
                 world.redplayers.push player
         for i in [0...11]
-                player = new Player([500-i*30, 360], Math.PI, 'blue', world, blueteamname)
+                player = new Player([500-i*30, 360], 0, 'blue', world, blueteamname, i+1)
+                player.ai = Client.foo
                 world.register(player)
                 world.blueplayers.push player
         
@@ -83,3 +86,26 @@ gameloop = (world, canvas) ->
         world.render(canvas)
 
 
+
+# steal from http://coffeescriptcookbook.com/chapters/classes_and_objects/cloning
+clone = (obj) ->
+  if not obj? or typeof obj isnt 'object'
+    return obj
+
+  if obj instanceof Date
+    return new Date(obj.getTime())
+
+  if obj instanceof RegExp
+    flags = ''
+    flags += 'g' if obj.global?
+    flags += 'i' if obj.ignoreCase?
+    flags += 'm' if obj.multiline?
+    flags += 'y' if obj.sticky?
+    return new RegExp(obj.source, flags)
+
+  newInstance = new obj.constructor()
+
+  for key of obj
+    newInstance[key] = clone obj[key]
+
+  return newInstance

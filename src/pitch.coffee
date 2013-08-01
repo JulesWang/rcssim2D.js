@@ -17,14 +17,24 @@ class Pitch
                 @goal_post_radius = 0.6
                 @corner_arc_r = 10
 
+                @board_length = 400
+                @board_height = 50
+
                 @field_color = 'RGB(31, 160, 31)'
                 @line_color  = 'RGB(255, 255, 255)'
-                @goal_color  = '#000000'
+                @goal_color  = '#000'
+                @board_color = '#000'
+                @text_color  = '#FFF'
 
                 @state = "before_kickoff"
-                
+                @red_score = 0
+                @blue_score = 0
+                @red_team_name = "unnamed"
+                @blue_team_name = "unnamed"
 
-        update:() ->
+        checkrules:(wm) ->
+                switch @state
+                        when 'before_kickoff' then @beforekickoffrules(wm)
                 
         render:(canvas) ->
                 field =
@@ -153,3 +163,31 @@ class Pitch
 
                 # right goal
                 canvas.fillRect( @goal_color, right_goal)
+
+
+                #board
+                board =
+                       x:-@board_length / 2,
+                       y:-canvas.h / 2,
+                       w:@board_length,
+                       h:@board_height,
+
+                canvas.fillRect(@board_color, board)
+
+                board_text = @red_team_name + '   ' + @red_score + ' : '
+                board_text +=   @blue_score + '   ' + @blue_team_name
+                canvas.drawText(@text_color, '20px Georgia', board_text, 0, -canvas.h/2+20)
+                canvas.drawText(@text_color, '20px Georgia', @state, 0, -canvas.h/2+40)
+
+
+        beforekickoffrules:(wm) ->
+                for player in wm.redplayers
+                        if player.p[0] > -player.r
+                                player.p[0] = -player.r
+                        if Vector2d.distance(player.p, [0,0]) < @center_circle_r
+                                player.p[0] = -@center_circle_r
+                for player in wm.blueplayers
+                        if player.p[0] < player.r
+                                player.p[0] = player.r
+                        if Vector2d.distance(player.p, [0,0]) < @center_circle_r
+                                player.p[0] = @center_circle_r
