@@ -1,4 +1,4 @@
-rcssim2D.js
+rssim2D.js
 ===========
 
-RoboCup Soccer Simulator 2D in JS
+Robot Soccer Simulator 2D in JS

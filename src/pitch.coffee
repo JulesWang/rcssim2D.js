@@ -21,8 +21,11 @@ class Pitch
                 @line_color  = 'RGB(255, 255, 255)'
                 @goal_color  = '#000000'
 
+                @state = "before_kickoff"
                 
 
+        update:() ->
+                
         render:(canvas) ->
                 field =
                         x:-canvas.w/2

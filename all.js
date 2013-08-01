@@ -126,9 +126,9 @@ onkeydown = function(ev, wm) {
     case K_DOWN:
       return obj.dash(-36);
     case K_LEFT:
-      return obj.turn(1);
-    case K_RIGHT:
       return obj.turn(-1);
+    case K_RIGHT:
+      return obj.turn(1);
     case K_d:
       return obj.kick(2);
   }
@@ -139,51 +139,52 @@ onmousedown = function(ev, wm, x, y) {
   _ref = wm.objs;
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     obj = _ref[_i];
-    if (obj.r === void 0 || obj.x === void 0 || obj.y === void 0) {
+    if (obj.kick === void 0) {
       continue;
     }
-    if (Math.abs(x - obj.x) < obj.r && Math.abs(y - obj.y) < obj.r) {
-      wm.selected = obj;
-      obj.sc = "#87CEFA";
-      return 1;
-    }
+    wm.selected = obj;
+    obj.sc = "#87CEFA";
+    return 1;
   }
   return 0;
 };
 
 Player = (function() {
-  function Player(x, y, dir) {
-    this.fc = 'gray';
+  function Player(p, dir, color, wm, teamname) {
+    this.fc = color;
     this.sc = 'black';
-    this.m = 60.0;
+    this.m = 5.0;
     this.r = 10;
     this.t = 'none';
-    this.x = x;
-    this.y = y;
+    this.p = p;
     this.v = [0, 0];
     this.d = dir;
     this.decay = 0.4;
-    this.MAXDASHFORCE = 36;
-    this.MAXKICKFORCE = 36;
+    this.MAXDASHFORCE = 6;
+    this.MAXKICKFORCE = 2;
     this.MAXTURNANGLE = 0.1;
     this.force = 0;
     this.dd = 0;
+    this.wm = wm;
+    this.teamname = teamname;
   }
 
   Player.prototype.render = function(canvas) {
-    var fillColor, strokeColor;
+    var fillColor, strokeColor, x, y;
     strokeColor = this.sc;
     fillColor = this.fc;
-    canvas.fillCircle(this.fc, this.x, this.y, this.r);
-    canvas.drawCircle(this.sc, this.x, this.y, this.r);
-    return canvas.fillArc(this.sc, this.x, this.y, this.r, this.d - 2 * Math.PI / 5, this.d + 2 * Math.PI / 5);
+    x = this.p[0];
+    y = this.p[1];
+    canvas.fillCircle(this.fc, x, y, this.r);
+    canvas.drawCircle(this.sc, x, y, this.r);
+    return canvas.fillArc(this.sc, x, y, this.r, this.d - 2 * Math.PI / 5, this.d + 2 * Math.PI / 5);
   };
 
   Player.prototype.update = function() {
-    var a, ds, dv, unitv, _ref;
-    if (Vector2d.len(this.v) > 1e-3) {
+    var a, ds, dv, unitv;
+    if (Vector2d.len(this.v) > 1e-5) {
       ds = this.v;
-      _ref = Vector2d.add([this.x, this.y], ds), this.x = _ref[0], this.y = _ref[1];
+      this.p = Vector2d.add(this.p, ds);
       this.v = Vector2d.multiply(this.v, this.decay);
     }
     a = this.force / this.m;
@@ -216,14 +217,15 @@ Player = (function() {
   };
 
   Player.prototype.kick = function(force) {
-    var p2b, unitv;
-    if (!this.ball) {
+    var bp, p2b, unitv;
+    if (!this.wm) {
       return;
     }
-    if (Vector2d.distance([this.x, this.y], [this.ball.x, this.ball.y]) > 20) {
+    bp = this.wm.ball.p;
+    if (Vector2d.distance(this.p, bp) > 20) {
       return;
     }
-    p2b = Vector2d.subtract([this.ball.x, this.ball.y], [this.x, this.y]);
+    p2b = Vector2d.subtract(bp, this.p);
     unitv = Vector2d.vector(this.d);
     if (Math.abs(Vector2d.angle(p2b, unitv)) > Math.PI / 6) {
       return;
@@ -231,7 +233,7 @@ Player = (function() {
     if (force > this.MAXKICKFORCE) {
       force = this.MAXKICKFORCE;
     }
-    return this.ball.acc(unitv, force);
+    return this.wm.ball.acc(unitv, force);
   };
 
   return Player;
@@ -256,7 +258,10 @@ Pitch = (function() {
     this.field_color = 'RGB(31, 160, 31)';
     this.line_color = 'RGB(255, 255, 255)';
     this.goal_color = '#000000';
+    this.state = "before_kickoff";
   }
+
+  Pitch.prototype.update = function() {};
 
   Pitch.prototype.render = function(canvas) {
     var field, goal_area_bottom_y, goal_area_top_y, goal_area_x, goal_area_y_abs, goal_top_y, half_length, left_goal, left_x, pen_bottom_y, pen_circle_dia, pen_circle_r, pen_circle_y_degree_abs, pen_spot_x, pen_top_y, pen_x, post_bottom_y, post_diameter, post_top_y, right_goal, right_x;
@@ -345,8 +350,7 @@ Ball = (function() {
     this.m = 0.2;
     this.sc = "#FFA500";
     this.fc = "#FFA500";
-    this.x = x;
-    this.y = y;
+    this.p = [x, y];
     this.v = [0, 0];
     this.decay = 0.94;
   }
@@ -361,15 +365,18 @@ Ball = (function() {
   };
 
   Ball.prototype.render = function(canvas) {
-    canvas.drawCircle(this.sc, this.x, this.y, this.r + 1);
-    return canvas.fillCircle(this.fc, this.x, this.y, this.r);
+    var x, y;
+    x = this.p[0];
+    y = this.p[1];
+    canvas.drawCircle(this.sc, x, y, this.r + 1);
+    return canvas.fillCircle(this.fc, x, y, this.r);
   };
 
   Ball.prototype.update = function() {
-    var ds, _ref;
+    var ds;
     if (Vector2d.len(this.v) > 1e-3) {
       ds = this.v;
-      _ref = Vector2d.add([this.x, this.y], ds), this.x = _ref[0], this.y = _ref[1];
+      this.p = Vector2d.add(this.p, ds);
       return this.v = Vector2d.multiply(this.v, this.decay);
     }
   };
@@ -442,6 +449,8 @@ Canvas.prototype.yscreen = function(y) {
 WorldModel = (function() {
   function WorldModel() {
     this.objs = [];
+    this.redplayers = [];
+    this.blueplayers = [];
   }
 
   WorldModel.prototype.register = function(obj) {
@@ -472,18 +481,59 @@ WorldModel = (function() {
   };
 
   WorldModel.prototype.update = function() {
-    var obj, _i, _len, _ref, _results;
+    var i, j, obj, _i, _j, _len, _ref, _ref1, _results;
     _ref = this.objs;
-    _results = [];
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       obj = _ref[_i];
       if (obj.update) {
-        _results.push(obj.update());
-      } else {
-        _results.push(void 0);
+        obj.update();
       }
     }
+    _results = [];
+    for (i = _j = 0, _ref1 = this.objs.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+      _results.push((function() {
+        var _k, _ref2, _ref3, _results1;
+        _results1 = [];
+        for (j = _k = _ref2 = i + 1, _ref3 = this.objs.length; _ref2 <= _ref3 ? _k < _ref3 : _k > _ref3; j = _ref2 <= _ref3 ? ++_k : --_k) {
+          _results1.push(this.collide(this.objs[i], this.objs[j]));
+        }
+        return _results1;
+      }).call(this));
+    }
     return _results;
+  };
+
+  WorldModel.prototype.collide = function(x, y) {
+    var dis, m1, m2, normal, overlap, tangent, v1, v1a, v1b, v1c, v2, v2a, v2b, v2c;
+    if (!x.r) {
+      return;
+    }
+    if (!y.r) {
+      return;
+    }
+    dis = Vector2d.distance(x.p, y.p);
+    if (dis > x.r + y.r) {
+      return;
+    }
+    m1 = x.m;
+    m2 = y.m;
+    v1 = x.v;
+    v2 = y.v;
+    normal = Vector2d.unit(Vector2d.subtract(x.p, y.p));
+    tangent = [-normal[1], normal[0]];
+    v1a = Vector2d.dot(v1, normal);
+    v1b = Vector2d.dot(v1, tangent);
+    v2a = Vector2d.dot(v2, normal);
+    v2b = Vector2d.dot(v2, tangent);
+    v2c = (m1 * 0.7 * (v1a - v2a) + m1 * v1a + m2 * v2a) / (m2 + m1);
+    v1c = (m1 * v1a + m2 * v2a - m2 * v2c) / m1;
+    x.v[0] = v1c * normal[0] + v1b * tangent[0];
+    x.v[1] = v1c * normal[1] + v1b * tangent[1];
+    y.v[0] = v2c * normal[0] + v2b * tangent[0];
+    y.v[1] = v2c * normal[1] + v2b * tangent[1];
+    overlap = dis - x.r - y.r;
+    x.p = Vector2d.add(x.p, Vector2d.multiply(normal, -overlap * x.r / (x.r + y.r)));
+    return y.p = Vector2d.add(y.p, Vector2d.multiply(normal, overlap * y.r / (x.r + y.r)));
   };
 
   return WorldModel;
@@ -582,11 +632,24 @@ Math.radians = function(degrees) {
 };
 
 main = function() {
-  var ball, c, canvas, ctx, height, offsetX, offsetY, pitch, player, width, world;
+  var ball, blueteamname, c, canvas, ctx, height, i, offsetX, offsetY, pitch, player, playernum, ratio, ratioh, ratiow, redteamname, width, world, _i, _j;
+  width = 1280.0;
+  height = 720.0;
+  playernum = 11;
   c = document.getElementById("myCanvas");
   ctx = c.getContext("2d");
-  width = c.width;
-  height = c.height;
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+  ratiow = c.width / width;
+  ratioh = c.height / height;
+  if (ratiow < ratioh) {
+    ratio = ratiow;
+    c.height = height * ratio;
+  } else {
+    ratio = ratioh;
+    c.width = width * ratio;
+  }
+  ctx.scale(ratio, ratio);
   offsetX = c.offsetLeft;
   offsetY = c.offsetTop;
   canvas = new Canvas(ctx, width, height);
@@ -595,9 +658,19 @@ main = function() {
   world.register(pitch);
   ball = new Ball(0, 0);
   world.register(ball);
-  player = new Player(20, 0, 0);
-  player.ball = ball;
-  world.register(player);
+  world.ball = ball;
+  redteamname = 'foo';
+  blueteamname = 'bar';
+  for (i = _i = 0; _i < 11; i = ++_i) {
+    player = new Player([-500 + i * 30, 360], 0, 'red', world, redteamname);
+    world.register(player);
+    world.redplayers.push(player);
+  }
+  for (i = _j = 0; _j < 11; i = ++_j) {
+    player = new Player([500 - i * 30, 360], Math.PI, 'blue', world, blueteamname);
+    world.register(player);
+    world.blueplayers.push(player);
+  }
   document.addEventListener('mousedown', function(ev) {
     var x, y;
     if (ev.offsetX === void 0) {
@@ -612,9 +685,24 @@ main = function() {
   document.addEventListener('keydown', function(ev) {
     return onkeydown(ev, world);
   }, false);
-  return setInterval(function() {
+  setInterval(function() {
     return gameloop(world, canvas);
   }, 10);
+  return window.onresize = function() {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    ratiow = c.width / width;
+    ratioh = c.height / height;
+    if (ratiow < ratioh) {
+      ratio = ratiow;
+      c.height = height * ratio;
+    } else {
+      ratio = ratioh;
+      c.width = width * ratio;
+    }
+    ctx.scale(ratio, ratio);
+    return world.render(canvas);
+  };
 };
 
 gameloop = function(world, canvas) {

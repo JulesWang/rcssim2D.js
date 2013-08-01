@@ -5,8 +5,7 @@ class Ball
                 @m = 0.2 #kg
                 @sc = "#FFA500"
                 @fc = "#FFA500"
-                @x = x
-                @y = y
+                @p = [x, y]
                 @v = [0, 0]
                 @decay = 0.94
                 
@@ -20,14 +19,16 @@ class Ball
                 #if Vector2d.len(@v) >
 
         render: (canvas) ->
-                canvas.drawCircle(@sc, @x, @y, @r+1)
-                canvas.fillCircle(@fc, @x, @y, @r)
+                x = @p[0]
+                y = @p[1]
+                canvas.drawCircle(@sc, x, y, @r+1)
+                canvas.fillCircle(@fc, x, y, @r)
 
         update: () ->
                 #Simulate Friction. Make sure the speed is positive 
                 if Vector2d.len(@v) > 1e-3
                         ds = @v
-                        [@x, @y] = Vector2d.add([@x, @y], ds)
+                        @p = Vector2d.add(@p, ds)
                         @v = Vector2d.multiply(@v, @decay)
 
                 

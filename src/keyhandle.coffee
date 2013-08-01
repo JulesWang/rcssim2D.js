@@ -68,18 +68,18 @@ onkeydown = (ev, wm) ->
                 when K_UP then  obj.dash(36)
                 #when K_DOWN then  obj.acc([0,1], 1)
                 when K_DOWN then  obj.dash(-36)
-                when K_LEFT then  obj.turn(1)
-                when K_RIGHT then obj.turn(-1)
+                when K_LEFT then  obj.turn(-1)
+                when K_RIGHT then obj.turn(1)
                 when K_d then obj.kick(2)
 
 
 onmousedown = (ev, wm, x, y) ->
         for obj in wm.objs
-                continue if obj.r is undefined or obj.x is undefined or obj.y is undefined
-                if Math.abs(x-obj.x) < obj.r and Math.abs(y-obj.y) < obj.r
-                        wm.selected = obj
-                        obj.sc = "#87CEFA"
-                        return 1
+                continue if obj.kick is undefined
+                #if Vector2d.distance(obj.p, ) < obj.r
+                wm.selected = obj
+                obj.sc = "#87CEFA"
+                return 1
         return 0
 
         
