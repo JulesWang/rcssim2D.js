@@ -1,9 +1,8 @@
-Client = {}
-class Client.Fmt442
+class Fmt442
         constructor:() ->
                 @wing2 = 200
-                @wing1 = 100
-                @center = 50
+                @wing1 = 60
+                @center = 20
                 @ratio =
                     gk : 0
                     b  : 0.4
@@ -11,7 +10,6 @@ class Client.Fmt442
                     f  : 1.0
 
                 @p = [
-                        {} #0
                         {x:-500, y:0, ratio:@ratio.gk} #GK
                         {x:0, y:@wing2, ratio:@ratio.b} #B
                         {x:0, y:-@wing2, ratio:@ratio.b} #B

@@ -18,7 +18,8 @@ Math.normaliseDegrees = (degrees) ->
  #
 Math.normaliseRadians = (radians) ->
     radians = radians % (2*Math.PI)
-    radians += (2*Math.PI) if radians < 0
+    radians += (2*Math.PI) if radians < -Math.PI
+    radians -= (2*Math.PI) if radians > Math.PI
     return radians
 
 

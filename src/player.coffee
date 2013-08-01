@@ -10,9 +10,9 @@ class Player
                 @v = [0, 0]
                 @d = @transdir(dir)
                 @decay = 0.4
-                @MAXDASHFORCE = 6
-                @MAXKICKFORCE = 2
-                @MAXTURNANGLE = 0.1
+                @maxdashforce = 6
+                @maxkickforce = 2
+                @maxturnangle = 0.1
                 @force = 0
                 @kickforce = 0
                 @dd = 0
@@ -38,6 +38,9 @@ class Player
                 for action of actions
                         switch action
                                 when 'jump' then @jump(actions['jump'])
+                                when 'dash' then @dash(actions['dash'])
+                                when 'turn' then @turn(actions['turn'])
+                                when 'kick' then @kick(actions['kick'])
                     
                 if Vector2d.len(@v) > 1e-5
                         ds = @v
@@ -57,15 +60,15 @@ class Player
                 @kickforce = 0
 
         dash:(force) ->
-                force = @MAXDASHFORCE if force > @MAXDASHFORCE
-                force = -@MAXDASHFORCE if force < -@MAXDASHFORCE
+                force = @maxdashforce if force > @maxdashforce
+                force = -@maxdashforce if force < -@maxdashforce
 
                 @force = force
 
         turn:(dir) ->
                 @dd = dir
-                @dd = @MAXTURNANGLE if @dd > @MAXTURNANGLE
-                @dd = -@MAXTURNANGLE if @dd < -@MAXTURNANGLE
+                @dd = @maxturnangle if @dd > @maxturnangle
+                @dd = -@maxturnangle if @dd < -@maxturnangle
 
         kick:(force) ->
                 return if not @wm
@@ -77,7 +80,7 @@ class Player
                 unitv = Vector2d.vector(@d)
                 return if Math.abs(Vector2d.angle(p2b, unitv) ) > Math.PI/6
 
-                force = @MAXKICKFORCE if force > @MAXKICKFORCE
+                force = @maxkickforce if force > @maxkickforce
             
                 @kickforce = force
 

@@ -39,14 +39,17 @@ main = () ->
         redteamname  = 'foo'
         blueteamname = 'bar'
 
+        fmt = new Fmt442()
+        foo = new Foo(fmt)
+
         for i in [0...11]
-                player = new Player([-500+i*30, 360], 0, 'red', world, redteamname, i+1)
-                player.ai = Client.foo
+                player = new Player([-500+i*30, 360], 0, 'red', world, redteamname, i)
+                player.ai = foo
                 world.register(player)
                 world.redplayers.push player
         for i in [0...11]
-                player = new Player([500-i*30, 360], 0, 'blue', world, blueteamname, i+1)
-                player.ai = Client.foo
+                player = new Player([500-i*30, 360], 0, 'blue', world, blueteamname, i)
+                player.ai = foo
                 world.register(player)
                 world.blueplayers.push player
         
@@ -109,3 +112,7 @@ clone = (obj) ->
     newInstance[key] = clone obj[key]
 
   return newInstance
+
+
+root = exports ? this
+root.main = main

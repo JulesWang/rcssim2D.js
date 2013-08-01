@@ -12,6 +12,7 @@ INPUT+= src/pitch.coffee
 INPUT+= src/player.coffee
 INPUT+= src/keyhandle.coffee
 INPUT+= teams/foo.coffee
+INPUT+= teams/share.coffee
 INPUT+= formations/442.coffee
 # INPUT+= src/achievements.coffee
 #INPUT+= src/cache.coffee
@@ -36,7 +37,7 @@ debug:
 compile:
 	mkdir -p build/
 	@echo "> Compiling - Use make debug if compilation fails"
-	$(CONCAT) ${INPUT} | coffee -sbc > all.js
+	$(CONCAT) ${INPUT} | coffee -sc > all.js
 
 minify:
 	@echo "> Minifying..."
