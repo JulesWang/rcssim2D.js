@@ -1,29 +1,38 @@
 
 class Foo
-        constructor:(fmt) ->
-                @fmt = fmt
+        constructor:(num, side) ->
+                # choose a nice name for your team
+                @teamname = 'Foo' 
+                # choose a distinctive color pair for your team
+                @fill_color = 'red' 
+                @stroke_color = 'black'
+                @teamnum = num
 
-        getfmtpos:(bp, teamnum) ->
-                pos = @fmt.p[teamnum]
-                pos.x = (PITCH_HALF_LENGTH+bp[0]) * pos.ratio-PITCH_HALF_LENGTH if teamnum != 0
+                @fmt = new Fmt442()
+                @side = side
+                
+
+        getfmtpos:(bp) ->
+                pos = @fmt.p[@teamnum]
+                pos.x = (PITCH_HALF_LENGTH+bp[0]) * pos.ratio-PITCH_HALF_LENGTH if @teamnum != 0
                 return [pos.x, pos.y]
 
         think:(wm) ->
                 if wm.gamestate is "before_kickoff"
-                        return {jump:@getfmtpos(wm.ball, wm.myteamnum)}
+                        return {jump:@getfmtpos(wm.ball, @teamnum)}
                 else
-                        if wm.mycolor is 'red'
-                                teammates = wm.redplayers
-                        else #if wm.mycolor is 'blue'
-                                teammates = wm.blueplayers
-                        @mypos = teammates[wm.myteamnum]
+                        if @side is 'left'
+                                teammates = wm.leftplayers
+                        else #if @side is 'right'
+                                teammates = wm.rightplayers
+                        @mypos = teammates[@teamnum]
                         #console.log(wm.ball)
                         @mydir = wm.mydir
                        
-                        if player_near_ball(teammates, wm.ball) is wm.myteamnum
+                        if player_near_ball(teammates, wm.ball) is @teamnum
                                 @go_and_kick(wm.ball)
                         else
-                                @goto(@getfmtpos(wm.ball, wm.myteamnum))
+                                @goto(@getfmtpos(wm.ball, @teamnum))
 
         goto: (pos) ->
                 return if Vector2d.distance(pos, @mypos) < 2

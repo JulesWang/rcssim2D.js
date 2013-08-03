@@ -36,22 +36,17 @@ main = () ->
         world.register(ball)
         world.ball = ball
 
-        redteamname  = 'foo'
-        blueteamname = 'bar'
-
-        fmt = new Fmt442()
-        foo = new Foo(fmt)
-
         for i in [0...11]
-                player = new Player([-500+i*30, 360], 0, 'red', world, redteamname, i)
-                player.ai = foo
+                player = new Player([-500+i*30, 360], 0, world, 'left')
+                player.client = new Foo(i, 'left')
                 world.register(player)
-                world.redplayers.push player
+                world.leftplayers.push player
         for i in [0...11]
-                player = new Player([500-i*30, 360], 0, 'blue', world, blueteamname, i)
-                player.ai = foo
+                player = new Player([-500+i*30, 360], 0, world, 'right')
+                player.client = new Foo(i, 'right')
+                player.client.fill_color = 'lightblue'
                 world.register(player)
-                world.blueplayers.push player
+                world.rightplayers.push player
         
         document.addEventListener('mousedown', (ev)->
                         if ev.offsetX is undefined

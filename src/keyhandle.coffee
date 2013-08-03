@@ -58,7 +58,8 @@ MOUSE_WHEEL = 6
 
 onkeydown = (ev, wm) ->
         switch ev.keyCode
-                when K_k then wm.pitch.state = "kickoff"
+                when K_k
+                        wm.pitch.kickoff()
         return if not wm.selected
 
         obj = wm.selected

@@ -102,14 +102,19 @@
   };
 
   Foo = (function() {
-    function Foo(fmt) {
-      this.fmt = fmt;
+    function Foo(num, side) {
+      this.teamname = 'Foo';
+      this.fill_color = 'red';
+      this.stroke_color = 'black';
+      this.teamnum = num;
+      this.fmt = new Fmt442();
+      this.side = side;
     }
 
-    Foo.prototype.getfmtpos = function(bp, teamnum) {
+    Foo.prototype.getfmtpos = function(bp) {
       var pos;
-      pos = this.fmt.p[teamnum];
-      if (teamnum !== 0) {
+      pos = this.fmt.p[this.teamnum];
+      if (this.teamnum !== 0) {
         pos.x = (PITCH_HALF_LENGTH + bp[0]) * pos.ratio - PITCH_HALF_LENGTH;
       }
       return [pos.x, pos.y];
@@ -119,20 +124,20 @@
       var teammates;
       if (wm.gamestate === "before_kickoff") {
         return {
-          jump: this.getfmtpos(wm.ball, wm.myteamnum)
+          jump: this.getfmtpos(wm.ball, this.teamnum)
         };
       } else {
-        if (wm.mycolor === 'red') {
-          teammates = wm.redplayers;
+        if (this.side === 'left') {
+          teammates = wm.leftplayers;
         } else {
-          teammates = wm.blueplayers;
+          teammates = wm.rightplayers;
         }
-        this.mypos = teammates[wm.myteamnum];
+        this.mypos = teammates[this.teamnum];
         this.mydir = wm.mydir;
-        if (player_near_ball(teammates, wm.ball) === wm.myteamnum) {
+        if (player_near_ball(teammates, wm.ball) === this.teamnum) {
           return this.go_and_kick(wm.ball);
         } else {
-          return this.goto(this.getfmtpos(wm.ball, wm.myteamnum));
+          return this.goto(this.getfmtpos(wm.ball, this.teamnum));
         }
       }
     };
@@ -301,7 +306,7 @@
     var obj;
     switch (ev.keyCode) {
       case K_k:
-        wm.pitch.state = "kickoff";
+        wm.pitch.kickoff();
     }
     if (!wm.selected) {
       return;
@@ -342,15 +347,13 @@
   };
 
   Player = (function() {
-    function Player(p, dir, color, wm, teamname, num) {
-      this.fc = color;
+    function Player(p, dir, wm, side) {
+      this.fc = 'grey';
       this.sc = 'black';
       this.m = 5.0;
       this.r = 10;
       this.t = 'none';
-      this.p = this.transdir(p);
       this.v = [0, 0];
-      this.d = this.transdir(dir);
       this.decay = 0.4;
       this.maxdashforce = 6;
       this.maxkickforce = 2;
@@ -359,41 +362,51 @@
       this.kickforce = 0;
       this.dd = 0;
       this.wm = wm;
-      this.teamname = teamname;
-      this.num = num;
+      this.side = side;
+      this.p = this.transpos(p);
+      this.d = this.transdir(dir);
     }
 
     Player.prototype.render = function(canvas) {
-      var fillColor, strokeColor, x, y;
-      strokeColor = this.sc;
-      fillColor = this.fc;
-      if (this.fc === 'blue') {
-        fillColor = 'lightblue';
-      }
+      var fill_color, stroke_color, x, y, _ref, _ref1;
+      stroke_color = (_ref = this.client.stroke_color) != null ? _ref : this.sc;
+      fill_color = (_ref1 = this.client.fill_color) != null ? _ref1 : this.fc;
       x = this.p[0];
       y = this.p[1];
-      canvas.fillCircle(fillColor, x, y, this.r);
-      canvas.drawCircle(strokeColor, x, y, this.r);
-      return canvas.fillArc(strokeColor, x, y, this.r, this.d - 2 * Math.PI / 5, this.d + 2 * Math.PI / 5);
+      canvas.fillCircle(fill_color, x, y, this.r);
+      canvas.drawCircle(stroke_color, x, y, this.r);
+      return canvas.fillArc(stroke_color, x, y, this.r, this.d - 2 * Math.PI / 5, this.d + 2 * Math.PI / 5);
     };
 
-    Player.prototype.update = function() {
-      var a, action, actions, ds, dv, unitv;
-      actions = this.ai.think(this.getbasicinfo());
+    Player.prototype.take_action = function() {
+      var action, actions, _results;
+      actions = this.client.think(this.getbasicinfo());
+      _results = [];
       for (action in actions) {
         switch (action) {
           case 'jump':
-            this.jump(actions['jump']);
+            _results.push(this.jump(actions['jump']));
             break;
           case 'dash':
-            this.dash(actions['dash']);
+            _results.push(this.dash(actions['dash']));
             break;
           case 'turn':
-            this.turn(actions['turn']);
+            _results.push(this.turn(actions['turn']));
             break;
           case 'kick':
-            this.kick(actions['kick']);
+            _results.push(this.kick(actions['kick']));
+            break;
+          default:
+            _results.push(void 0);
         }
+      }
+      return _results;
+    };
+
+    Player.prototype.update = function() {
+      var a, ds, dv, unitv;
+      if (this.wm.selected !== this) {
+        this.take_action();
       }
       if (Vector2d.len(this.v) > 1e-5) {
         ds = this.v;
@@ -407,6 +420,9 @@
       this.v = Vector2d.add(this.v, dv);
       this.d += this.dd;
       this.dd = 0;
+      if (this.kickforce !== 0) {
+        this.wm.pitch.last_touch_ball = this.side;
+      }
       this.wm.ball.acc(unitv, this.kickforce);
       return this.kickforce = 0;
     };
@@ -459,33 +475,31 @@
     Player.prototype.getbasicinfo = function() {
       var p, player, wm, _i, _j, _len, _len1, _ref, _ref1;
       wm = {};
-      wm.redplayers = [];
-      wm.blueplayers = [];
-      _ref = this.wm.redplayers;
+      wm.leftplayers = [];
+      wm.rightplayers = [];
+      _ref = this.wm.leftplayers;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         player = _ref[_i];
         p = clone(player.p);
         p = this.transpos(p);
-        wm.redplayers.push(p);
+        wm.leftplayers.push(p);
       }
-      _ref1 = this.wm.blueplayers;
+      _ref1 = this.wm.rightplayers;
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         player = _ref1[_j];
         p = clone(player.p);
         p = this.transpos(p);
-        wm.blueplayers.push(p);
+        wm.rightplayers.push(p);
       }
       wm.gamestate = this.wm.pitch.state;
       wm.ball = clone(this.wm.ball.p);
       wm.ball = this.transpos(wm.ball);
       wm.mydir = this.transdir(this.d);
-      wm.myteamnum = this.num;
-      wm.mycolor = this.fc;
       return wm;
     };
 
     Player.prototype.transpos = function(p) {
-      if (this.fc === 'red') {
+      if (this.side === 'left') {
         return p;
       }
       p[0] = -p[0];
@@ -494,7 +508,7 @@
     };
 
     Player.prototype.transdir = function(dir) {
-      if (this.fc === 'red') {
+      if (this.side === 'left') {
         return dir;
       }
       return Math.normaliseRadians(dir + Math.PI);
@@ -527,16 +541,20 @@
       this.board_color = '#000';
       this.text_color = '#FFF';
       this.state = "before_kickoff";
-      this.red_score = 0;
-      this.blue_score = 0;
-      this.red_team_name = "unnamed";
-      this.blue_team_name = "unnamed";
+      this.left_score = 0;
+      this.right_score = 0;
+      this.left_team_name = "unnamed";
+      this.right_team_name = "unnamed";
     }
 
     Pitch.prototype.checkrules = function(wm) {
       switch (this.state) {
         case 'before_kickoff':
-          return this.beforekickoffrules(wm);
+          return this.before_kickoff_rules(wm);
+        case 'kickoff_left':
+          return this.kickoff_left_rules(wm);
+        case 'kickoff_right':
+          return this.kickoff_right_rules(wm);
       }
     };
 
@@ -622,15 +640,15 @@
         h: this.board_height
       };
       canvas.fillRect(this.board_color, board);
-      board_text = this.red_team_name + '   ' + this.red_score + ' : ';
-      board_text += this.blue_score + '   ' + this.blue_team_name;
+      board_text = this.left_team_name + '   ' + this.left_score + ' : ';
+      board_text += this.right_score + '   ' + this.right_team_name;
       canvas.drawText(this.text_color, '20px Georgia', board_text, 0, -canvas.h / 2 + 20);
       return canvas.drawText(this.text_color, '20px Georgia', this.state, 0, -canvas.h / 2 + 40);
     };
 
-    Pitch.prototype.beforekickoffrules = function(wm) {
+    Pitch.prototype.before_kickoff_rules = function(wm) {
       var player, _i, _j, _len, _len1, _ref, _ref1, _results;
-      _ref = wm.redplayers;
+      _ref = wm.leftplayers;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         player = _ref[_i];
         if (player.p[0] > -player.r) {
@@ -640,7 +658,7 @@
           player.p[0] = -this.center_circle_r;
         }
       }
-      _ref1 = wm.blueplayers;
+      _ref1 = wm.rightplayers;
       _results = [];
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         player = _ref1[_j];
@@ -654,6 +672,52 @@
         }
       }
       return _results;
+    };
+
+    Pitch.prototype.kickoff = function() {
+      if (this.state === 'before_kickoff') {
+        return this.state = 'kickoff_left';
+      }
+    };
+
+    Pitch.prototype.kickoff_left_rules = function(wm) {
+      var player, _i, _len, _ref;
+      _ref = wm.rightplayers;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        player = _ref[_i];
+        if (player.p[0] < player.r) {
+          player.p[0] = player.r;
+        }
+        if (Vector2d.distance(player.p, [0, 0]) < this.center_circle_r) {
+          player.p[0] = this.center_circle_r;
+        }
+      }
+      if (this.last_touch_ball) {
+        return this.state = 'playon';
+      }
+    };
+
+    Pitch.prototype.kickoff_right_rules = function(wm) {
+      var player, _i, _len, _ref, _results;
+      _ref = wm.leftplayers;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        player = _ref[_i];
+        if (player.p[0] > -player.r) {
+          player.p[0] = -player.r;
+        }
+        if (Vector2d.distance(player.p, [0, 0]) < this.center_circle_r) {
+          _results.push(player.p[0] = -this.center_circle_r);
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Pitch.prototype.playon_rules = function(wm) {
+      var a;
+      return a = 1;
     };
 
     return Pitch;
@@ -764,8 +828,8 @@
   WorldModel = (function() {
     function WorldModel() {
       this.objs = [];
-      this.redplayers = [];
-      this.blueplayers = [];
+      this.leftplayers = [];
+      this.rightplayers = [];
     }
 
     WorldModel.prototype.register = function(obj) {
@@ -805,8 +869,8 @@
         }
       }
       wm = {
-        redplayers: this.redplayers,
-        blueplayers: this.blueplayers,
+        leftplayers: this.leftplayers,
+        rightplayers: this.rightplayers,
         ball: this.ball
       };
       this.pitch.checkrules(wm);
@@ -836,6 +900,12 @@
       if (dis > x.r + y.r) {
         return;
       }
+      if (x.r === 10 && y.r === 4) {
+        this.pitch.last_touch_ball = x.side;
+      }
+      if (x.r === 4 && y.r === 10) {
+        this.pitch.last_touch_ball = y.side;
+      }
       m1 = x.m;
       m2 = y.m;
       v1 = x.v;
@@ -846,7 +916,7 @@
       v1b = Vector2d.dot(v1, tangent);
       v2a = Vector2d.dot(v2, normal);
       v2b = Vector2d.dot(v2, tangent);
-      v2c = (m1 * 0.7 * (v1a - v2a) + m1 * v1a + m2 * v2a) / (m2 + m1);
+      v2c = (m1 * 0.5 * (v1a - v2a) + m1 * v1a + m2 * v2a) / (m2 + m1);
       v1c = (m1 * v1a + m2 * v2a - m2 * v2c) / m1;
       x.v[0] = v1c * normal[0] + v1b * tangent[0];
       x.v[1] = v1c * normal[1] + v1b * tangent[1];
@@ -956,7 +1026,7 @@
   };
 
   main = function() {
-    var ball, blueteamname, c, canvas, ctx, fmt, foo, height, i, offsetX, offsetY, pitch, player, playernum, ratio, ratioh, ratiow, redteamname, width, world, _i, _j;
+    var ball, c, canvas, ctx, height, i, offsetX, offsetY, pitch, player, playernum, ratio, ratioh, ratiow, width, world, _i, _j;
     width = 1280.0;
     height = 800.0;
     playernum = 11;
@@ -984,21 +1054,18 @@
     ball = new Ball(0, 0);
     world.register(ball);
     world.ball = ball;
-    redteamname = 'foo';
-    blueteamname = 'bar';
-    fmt = new Fmt442();
-    foo = new Foo(fmt);
     for (i = _i = 0; _i < 11; i = ++_i) {
-      player = new Player([-500 + i * 30, 360], 0, 'red', world, redteamname, i);
-      player.ai = foo;
+      player = new Player([-500 + i * 30, 360], 0, world, 'left');
+      player.client = new Foo(i, 'left');
       world.register(player);
-      world.redplayers.push(player);
+      world.leftplayers.push(player);
     }
     for (i = _j = 0; _j < 11; i = ++_j) {
-      player = new Player([500 - i * 30, 360], 0, 'blue', world, blueteamname, i);
-      player.ai = foo;
+      player = new Player([-500 + i * 30, 360], 0, world, 'right');
+      player.client = new Foo(i, 'right');
+      player.client.fill_color = 'lightblue';
       world.register(player);
-      world.blueplayers.push(player);
+      world.rightplayers.push(player);
     }
     document.addEventListener('mousedown', function(ev) {
       var x, y;

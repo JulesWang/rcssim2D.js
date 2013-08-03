@@ -21,5 +21,4 @@ player_near_ball = (teammates, ball) ->
                         min = dis
                         num = i
                 i+=1
-        #console.log(num)
         return num

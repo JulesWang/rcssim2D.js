@@ -27,15 +27,20 @@ class Pitch
                 @text_color  = '#FFF'
 
                 @state = "before_kickoff"
-                @red_score = 0
-                @blue_score = 0
-                @red_team_name = "unnamed"
-                @blue_team_name = "unnamed"
+                @left_score = 0
+                @right_score = 0
+                @left_team_name = "unnamed"
+                @right_team_name = "unnamed"
 
         checkrules:(wm) ->
                 switch @state
-                        when 'before_kickoff' then @beforekickoffrules(wm)
-                
+                        when 'before_kickoff'
+                                @before_kickoff_rules(wm)
+                        when 'kickoff_left'
+                                @kickoff_left_rules(wm)
+                        when 'kickoff_right'
+                                @kickoff_right_rules(wm)
+                        
         render:(canvas) ->
                 field =
                         x:-canvas.w/2
@@ -146,20 +151,20 @@ class Pitch
                 post_diameter = @goal_post_radius*2.0
 
                 left_goal =
-                      x:-@pitch_length/2 - @goal_depth - 1,
-                      y:goal_top_y,
-                      w:@goal_depth,
-                      h:@goal_width,
+                        x:-@pitch_length/2 - @goal_depth - 1,
+                        y:goal_top_y,
+                        w:@goal_depth,
+                        h:@goal_width,
                    
 
                 # left goal
                 canvas.fillRect( @goal_color, left_goal)
 
                 right_goal =
-                       x:@pitch_length/2 + 1,
-                       y:goal_top_y,
-                       w:@goal_depth,
-                       h:@goal_width,
+                        x:@pitch_length/2 + 1,
+                        y:goal_top_y,
+                        w:@goal_depth,
+                        h:@goal_width,
 
                 # right goal
                 canvas.fillRect( @goal_color, right_goal)
@@ -167,27 +172,55 @@ class Pitch
 
                 #board
                 board =
-                       x:-@board_length / 2,
-                       y:-canvas.h / 2,
-                       w:@board_length,
-                       h:@board_height,
+                        x:-@board_length / 2,
+                        y:-canvas.h / 2,
+                        w:@board_length,
+                        h:@board_height,
 
                 canvas.fillRect(@board_color, board)
 
-                board_text = @red_team_name + '   ' + @red_score + ' : '
-                board_text +=   @blue_score + '   ' + @blue_team_name
+                board_text = @left_team_name + '   ' + @left_score + ' : '
+                board_text += @right_score + '   ' + @right_team_name
                 canvas.drawText(@text_color, '20px Georgia', board_text, 0, -canvas.h/2+20)
                 canvas.drawText(@text_color, '20px Georgia', @state, 0, -canvas.h/2+40)
 
 
-        beforekickoffrules:(wm) ->
-                for player in wm.redplayers
+        before_kickoff_rules:(wm) ->
+                for player in wm.leftplayers
                         if player.p[0] > -player.r
                                 player.p[0] = -player.r
-                        if Vector2d.distance(player.p, [0,0]) < @center_circle_r
+                        if (Vector2d.distance(player.p, [0,0]) < @center_circle_r)
                                 player.p[0] = -@center_circle_r
-                for player in wm.blueplayers
+                for player in wm.rightplayers
                         if player.p[0] < player.r
                                 player.p[0] = player.r
                         if Vector2d.distance(player.p, [0,0]) < @center_circle_r
                                 player.p[0] = @center_circle_r
+
+        kickoff:() ->
+                @state = 'kickoff_left' if @state is 'before_kickoff'
+                #@state = 'playon'
+                
+
+        kickoff_left_rules:(wm) ->
+                 for player in wm.rightplayers
+                        if player.p[0] < player.r
+                                player.p[0] = player.r
+                        if Vector2d.distance(player.p, [0,0]) < @center_circle_r
+                                player.p[0] = @center_circle_r
+
+                 if @last_touch_ball
+                        @state = 'playon'
+                        
+
+        kickoff_right_rules:(wm) ->
+                 for player in wm.leftplayers
+                        if player.p[0] > -player.r
+                                player.p[0] = -player.r
+                        if Vector2d.distance(player.p, [0,0]) < @center_circle_r
+                                player.p[0] = -@center_circle_r
+
+
+               
+        playon_rules: (wm) ->
+                a = 1

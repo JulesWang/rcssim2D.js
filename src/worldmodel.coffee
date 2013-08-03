@@ -2,8 +2,8 @@
 class WorldModel
         constructor: () ->
                 @objs = []
-                @redplayers = []
-                @blueplayers = []
+                @leftplayers = []
+                @rightplayers = []
 
         register: (obj) ->
                 @objs.push obj
@@ -20,8 +20,8 @@ class WorldModel
                 for obj in @objs
                         obj.update() if obj.update
                 wm =
-                    redplayers: @redplayers
-                    blueplayers: @blueplayers
+                    leftplayers: @leftplayers
+                    rightplayers: @rightplayers
                     ball: @ball
                 @pitch.checkrules(wm)
                 for i in [0...@objs.length]
@@ -33,6 +33,11 @@ class WorldModel
                 return if not y.r
                 dis = Vector2d.distance(x.p, y.p)
                 return if dis > x.r+y.r
+
+                if x.r == 10 and y.r == 4
+                        @pitch.last_touch_ball = x.side
+                if x.r == 4 and y.r == 10
+                        @pitch.last_touch_ball = y.side
                 m1 = x.m
                 m2 = y.m
                 v1 = x.v
@@ -55,7 +60,7 @@ class WorldModel
                 # m1*e(v1a - v2a) = -m1v1a-m2v2a + m2v2c + v2c*m1
                 # m1*e(v1a - v2a)+m1v1a + m2v2a = m2v2c + v2c*m1
                 # m1*e(v1a - v2a)+m1v1a + m2v2a/ (m2 + m1) = v2c
-                v2c = (m1*0.7*(v1a - v2a) + m1*v1a + m2*v2a) / (m2 + m1)
+                v2c = (m1*0.5*(v1a - v2a) + m1*v1a + m2*v2a) / (m2 + m1)
                 v1c = (m1*v1a + m2*v2a - m2*v2c) / m1
                 
                 #angle = Math.atan2(normal[y], normal[0])
