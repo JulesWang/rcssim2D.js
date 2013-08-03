@@ -16,21 +16,23 @@ class Pitch
                 @goal_depth = 24.4
                 @goal_post_radius = 0.6
                 @corner_arc_r = 10
-
-                @board_length = 400
-                @board_height = 50
+                @goal_pillars = 
+                        left_up : [-(@pitch_length/2), (@goal_width/2)]
+                        left_bottom : [-(@pitch_length/2), -(@goal_width/2)]
+                        right_up : [(@pitch_length/2), (@goal_width/2)]
+                        right_bottom : [(@pitch_length/2), -(@goal_width/2)]
 
                 @field_color = 'RGB(31, 160, 31)'
                 @line_color  = 'RGB(255, 255, 255)'
                 @goal_color  = '#000'
-                @board_color = '#000'
-                @text_color  = '#FFF'
 
                 @state = "before_kickoff"
-                @left_score = 0
-                @right_score = 0
-                @left_team_name = "unnamed"
-                @right_team_name = "unnamed"
+                @last_goal_side = "left"
+
+                @auto_kickoff = false
+
+                @board = new ScoreBoard()
+
 
         checkrules:(wm) ->
                 switch @state
@@ -40,6 +42,8 @@ class Pitch
                                 @kickoff_left_rules(wm)
                         when 'kickoff_right'
                                 @kickoff_right_rules(wm)
+                        when 'playon'
+                                @playon_rules(wm)
                         
         render:(canvas) ->
                 field =
@@ -171,18 +175,8 @@ class Pitch
 
 
                 #board
-                board =
-                        x:-@board_length / 2,
-                        y:-canvas.h / 2,
-                        w:@board_length,
-                        h:@board_height,
-
-                canvas.fillRect(@board_color, board)
-
-                board_text = @left_team_name + '   ' + @left_score + ' : '
-                board_text += @right_score + '   ' + @right_team_name
-                canvas.drawText(@text_color, '20px Georgia', board_text, 0, -canvas.h/2+20)
-                canvas.drawText(@text_color, '20px Georgia', @state, 0, -canvas.h/2+40)
+                @board.set_state(@state)
+                @board.render(canvas)
 
 
         before_kickoff_rules:(wm) ->
@@ -197,9 +191,17 @@ class Pitch
                         if Vector2d.distance(player.p, [0,0]) < @center_circle_r
                                 player.p[0] = @center_circle_r
 
+                if @auto_kickoff
+                        this.kickoff()
+
+
         kickoff:() ->
-                @state = 'kickoff_left' if @state is 'before_kickoff'
-                #@state = 'playon'
+                switch @state
+                        when 'before_kickoff'
+                                if @last_goal_side == 'left'
+                                        @state = 'kickoff_left'
+                                else
+                                        @state = 'kickoff_right'
                 
 
         kickoff_left_rules:(wm) ->
@@ -209,7 +211,7 @@ class Pitch
                         if Vector2d.distance(player.p, [0,0]) < @center_circle_r
                                 player.p[0] = @center_circle_r
 
-                 if @last_touch_ball
+                 if @last_goal_side == 'left'
                         @state = 'playon'
                         
 
@@ -220,7 +222,63 @@ class Pitch
                         if Vector2d.distance(player.p, [0,0]) < @center_circle_r
                                 player.p[0] = -@center_circle_r
 
+                 if @last_goal_side == 'right'
+                        @state = 'playon'
+
 
                
         playon_rules: (wm) ->
-                a = 1
+                x = wm.ball.p[0]
+                y = wm.ball.p[1]
+                if Math.abs(y) < @goal_width / 2
+                        if x <= -@pitch_length / 2
+                                if this.is_goal(wm.ball, @goal_pillars.left_bottom, @goal_pillars.left_up)
+                                        @board.increase_right_score()
+                                        @last_goal_side = 'right'
+                                        @state = 'before_kickoff'
+                                        wm.reset()
+                                        return
+
+                        if x >= @pitch_length / 2
+                                if this.is_goal(wm.ball, @goal_pillars.right_bottom, @goal_pillars.right_up)
+                                        @board.increase_left_score()
+                                        @last_goal_side = 'left'
+                                        @state = 'before_kickoff'
+                                        wm.reset()
+                                        return
+
+        is_goal: (ball, l1, l2) ->
+                x1 = ball.last_pos[0]
+                y1 = ball.last_pos[1]
+                x2 = ball.p[0]
+                y2 = ball.p[1]
+                u1 = l1[0]
+                v1 = l1[1]
+                u2 = l2[0]
+                v2 = l2[1]
+
+                denominator = (y2 - y1)*(u2 - u1) - (x1 - x2)*(v1 - v2)
+                if denominator == 0
+                        return false
+
+                x = ((x2 - x1)*(u2 - u1)*(v1-y1) + 
+                        (y2 - y1)*(u2 - u1)*x1 - 
+                        (v2 - v1)*(x2 - x1)*u1)/ denominator
+
+                y = ((y2 - y1)*(v2 - v1)*(u1-x1) + 
+                        (x2 - x1)*(v2 - v1)*y1 - 
+                        (u2 - u1)*(y2 - y1)*v1)/ denominator
+
+                if (x - u1)*(x - u2) <=0 and (y - v1)*(y - v2) <= 0
+                        if not @auto_kickoff
+                                @auto_kickoff = true
+                        return true
+
+                return false
+
+
+        reset: () ->
+                @state = 'before_kickoff'
+
+
+
