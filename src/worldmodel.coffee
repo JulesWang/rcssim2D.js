@@ -23,10 +23,15 @@ class WorldModel
                     leftplayers: @leftplayers
                     rightplayers: @rightplayers
                     ball: @ball
-                @pitch.checkrules(wm)
+                @pitch.checkrules(this)
                 for i in [0...@objs.length]
                         for j in [i+1...@objs.length]
                                 @collide(@objs[i], @objs[j])
+
+        reset: () ->
+                for obj in @objs
+                        obj.reset() if obj.reset
+
 
         collide: (x,y) ->
                 return if not x.r

@@ -9,6 +9,7 @@ INPUT+= src/worldmodel.coffee
 INPUT+= src/canvas.coffee
 INPUT+= src/ball.coffee
 INPUT+= src/pitch.coffee
+INPUT+= src/score_board.coffee
 INPUT+= src/player.coffee
 INPUT+= src/keyhandle.coffee
 INPUT+= teams/foo.coffee

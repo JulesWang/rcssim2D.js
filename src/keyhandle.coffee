@@ -60,6 +60,8 @@ onkeydown = (ev, wm) ->
         switch ev.keyCode
                 when K_k
                         wm.pitch.kickoff()
+                when K_r
+                        wm.reset()
         return if not wm.selected
 
         obj = wm.selected

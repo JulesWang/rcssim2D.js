@@ -8,6 +8,7 @@ class Ball
                 @p = [x, y]
                 @v = [0, 0]
                 @decay = 0.94
+                @last_pos = @p
                 
                 
         acc: (dir, force) ->
@@ -28,7 +29,9 @@ class Ball
                 #Simulate Friction. Make sure the speed is positive 
                 if Vector2d.len(@v) > 1e-3
                         ds = @v
+                        @last_pos = @p
                         @p = Vector2d.add(@p, ds)
                         @v = Vector2d.multiply(@v, @decay)
 
-                
+        reset: () ->
+                @p = [0,0]
