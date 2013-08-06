@@ -42,3 +42,10 @@ Math.degrees = (radians)  ->
 Math.radians = (degrees)  ->
     return degrees * (Math.PI / 180)
 
+##
+ # 
+ # get the sign of a number
+ # @param ->Number} number
+ # @returns ->Number} -1 or 1
+Math.sign = (number) ->
+    return number/Math.abs(number)

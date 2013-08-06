@@ -31,6 +31,8 @@ main = () ->
         pitch = new Pitch()
         world.register(pitch)
         world.pitch = pitch
+        pitch.board.left_teamname = 'foo'
+        pitch.board.right_teamname = 'bar'
 
         ball = new Ball(0, 0)
         world.register(ball)
@@ -63,7 +65,7 @@ main = () ->
 
         setInterval ()->
                 gameloop(world, canvas)
-        , 10
+        , 20
 
         window.onresize = () ->
                 c.width = window.innerWidth

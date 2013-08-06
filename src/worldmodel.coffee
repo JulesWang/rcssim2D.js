@@ -32,6 +32,15 @@ class WorldModel
                 for obj in @objs
                         obj.reset() if obj.reset
 
+        switch_sides: () ->
+                [@rightplayers, @leftplayers] = [@leftplayers, @rightplayers]
+
+                for player in @leftplayers
+                        player.side = 'left'
+                        player.client.side = 'left'
+                for player in @rightplayers
+                        player.side = 'right'
+                        player.client.side = 'right'
 
         collide: (x,y) ->
                 return if not x.r
@@ -39,9 +48,10 @@ class WorldModel
                 dis = Vector2d.distance(x.p, y.p)
                 return if dis > x.r+y.r
 
-                if x.r == 10 and y.r == 4
+                # hack
+                if x.r > y.r
                         @pitch.last_touch_ball = x.side
-                if x.r == 4 and y.r == 10
+                if x.r < y.r
                         @pitch.last_touch_ball = y.side
                 m1 = x.m
                 m2 = y.m
@@ -65,7 +75,7 @@ class WorldModel
                 # m1*e(v1a - v2a) = -m1v1a-m2v2a + m2v2c + v2c*m1
                 # m1*e(v1a - v2a)+m1v1a + m2v2a = m2v2c + v2c*m1
                 # m1*e(v1a - v2a)+m1v1a + m2v2a/ (m2 + m1) = v2c
-                v2c = (m1*0.5*(v1a - v2a) + m1*v1a + m2*v2a) / (m2 + m1)
+                v2c = (m1*0.2*(v1a - v2a) + m1*v1a + m2*v2a) / (m2 + m1)
                 v1c = (m1*v1a + m2*v2a - m2*v2c) / m1
                 
                 #angle = Math.atan2(normal[y], normal[0])

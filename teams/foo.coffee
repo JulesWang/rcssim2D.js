@@ -1,15 +1,17 @@
 
 class Foo
         constructor:(num, side) ->
+                # DO NOT MODIFY FOLLOWING VARIBLE NAMES
                 # choose a nice name for your team
                 @teamname = 'Foo' 
                 # choose a distinctive color pair for your team
                 @fill_color = 'red' 
                 @stroke_color = 'black'
                 @teamnum = num
+                @side = side
+
 
                 @fmt = new Fmt442()
-                @side = side
                 
 
         getfmtpos:(bp) ->
@@ -18,24 +20,33 @@ class Foo
                 return [pos.x, pos.y]
 
         think:(wm) ->
-                if wm.gamestate is "before_kickoff"
-                        return {jump:@getfmtpos(wm.ball, @teamnum)}
-                else
-                        if @side is 'left'
-                                teammates = wm.leftplayers
-                        else #if @side is 'right'
-                                teammates = wm.rightplayers
-                        @mypos = teammates[@teamnum]
-                        #console.log(wm.ball)
-                        @mydir = wm.mydir
-                       
-                        if player_near_ball(teammates, wm.ball) is @teamnum
-                                @go_and_kick(wm.ball)
-                        else
-                                @goto(@getfmtpos(wm.ball, @teamnum))
+                @wm = wm
 
+                if @side is 'left'
+                        @teammates = @wm.leftplayers
+                else #if @side is 'right'
+                        @teammates = @wm.rightplayers
+                @mypos = @teammates[@teamnum]
+                @mydir = @wm.mydir
+
+                switch @wm.gamestate
+                        when 'before_kickoff' then return {jump:@getfmtpos(@wm.ball, @teamnum)}
+                        when 'game_over' then return {}
+                        when 'play_on' then return @playon()
+                        when 'goalkick_left' 
+                                if @side is 'left'
+                                        return @goalkick()
+                                else
+                                        return @playon()
+                        when 'goalkick_right' 
+                                if @side is 'right'
+                                        return @goalkick()
+                                else
+                                        return @playon()
+                        else
+                                return @playon()
         goto: (pos) ->
-                return if Vector2d.distance(pos, @mypos) < 2
+                return {} if Vector2d.distance(pos, @mypos) < 0.1
                 me2pos = Vector2d.subtract(pos, @mypos)
                 angle = Math.atan2(me2pos[1], me2pos[0])
                 delta = Math.normaliseRadians(angle-@mydir)
@@ -44,13 +55,11 @@ class Foo
                 else
                         return {turn:delta}
                 
-                
-
 
         go_and_kick:(ball) ->
                 goal2ball = Vector2d.subtract(ball, OP_GOAL_POS)
                 unit = Vector2d.unit(goal2ball)
-                gopos = Vector2d.add(Vector2d.multiply(unit, BALL_R + PLAYER_R + 3), ball)
+                gopos = Vector2d.add(Vector2d.multiply(unit, BALL_R + PLAYER_R + 2), ball)
                 
                 ball2goal = Vector2d.subtract(OP_GOAL_POS, ball)
                 angleb2g = Math.atan2(ball2goal[1], ball2goal[0])
@@ -60,15 +69,34 @@ class Foo
                 delta1 = Math.normaliseRadians(angleb2g-anglem2b)
                 dis = Vector2d.distance(ball, @mypos)
 
-                if Math.abs(delta1) < Math.PI/12 and dis < 20
+                if Math.abs(delta1) < Math.PI/12 and dis < BALL_R + PLAYER_R + 3
                         delta2 = Math.normaliseRadians(anglem2b-@mydir)
                         if Math.abs(delta2) < Math.PI/12
                                 return {kick:MAX_KICK_FORCE}
                         else
                                 return {turn:delta2}
                 else
-                        @goto(gopos)
+                        return @goto(gopos)
 
-                
+        playon: () ->
+                if is_goalie(@teamnum)
+                        if Vector2d.distance(@mypos, @wm.ball) < HALF_GOAL_WIDTH and in_my_penalty(@wm.ball)
+                                ret = @goto(@wm.ball)
+                                ret.suck = 0
+                                return ret
+                        else
+                                return @goto(@getfmtpos(@wm.ball, @teamnum))
+               
+                if player_near_ball(@teammates, @wm.ball) is @teamnum
+                        return @go_and_kick(@wm.ball)
+                else
+                        return @goto(@getfmtpos(@wm.ball, @teamnum))
 
+
+
+        goalkick: () ->
+                if player_near_ball(@teammates, @wm.ball) is @teamnum
+                        return @go_and_kick(@wm.ball)
+                else
+                        return @goto(@getfmtpos(@wm.ball, @teamnum))
 

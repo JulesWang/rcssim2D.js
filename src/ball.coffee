@@ -1,7 +1,7 @@
 
 class Ball
         constructor: (x, y) ->
-                @r = 4
+                @r = 2.5
                 @m = 0.2 #kg
                 @sc = "#FFA500"
                 @fc = "#FFA500"
@@ -27,11 +27,13 @@ class Ball
 
         update: () ->
                 #Simulate Friction. Make sure the speed is positive 
+                @last_pos = @p
                 if Vector2d.len(@v) > 1e-3
                         ds = @v
-                        @last_pos = @p
                         @p = Vector2d.add(@p, ds)
                         @v = Vector2d.multiply(@v, @decay)
 
         reset: () ->
                 @p = [0,0]
+                @v = [0,0]
+                

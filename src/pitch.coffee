@@ -4,6 +4,7 @@ class Pitch
                 @pitch_length = 1050
                 @pitch_width = 680
                 @center_circle_r = 91.5
+                @freekick_circle_r = 91.5
 
                 @penalty_area_length = 165
                 @penalty_area_width = 403.2
@@ -16,34 +17,53 @@ class Pitch
                 @goal_depth = 24.4
                 @goal_post_radius = 0.6
                 @corner_arc_r = 10
+                @half_time = 10000
                 @goal_pillars = 
-                        left_up : [-(@pitch_length/2), (@goal_width/2)]
-                        left_bottom : [-(@pitch_length/2), -(@goal_width/2)]
-                        right_up : [(@pitch_length/2), (@goal_width/2)]
-                        right_bottom : [(@pitch_length/2), -(@goal_width/2)]
+                        left : 
+                                up : [-(@pitch_length/2), (@goal_width/2)]
+                                bottom : [-(@pitch_length/2), -(@goal_width/2)]
+                        right:
+                                up : [(@pitch_length/2), (@goal_width/2)]
+                                bottom : [(@pitch_length/2), -(@goal_width/2)]
 
                 @field_color = 'RGB(31, 160, 31)'
                 @line_color  = 'RGB(255, 255, 255)'
                 @goal_color  = '#000'
 
                 @state = "before_kickoff"
-                @last_goal_side = "left"
+                @last_goal_side = 
 
                 @auto_kickoff = false
+                @kickoff_delay = 0
+
+                @second_half = false
 
                 @board = new ScoreBoard()
 
 
         checkrules:(wm) ->
+                @wm = wm
                 switch @state
                         when 'before_kickoff'
-                                @before_kickoff_rules(wm)
+                                @before_kickoff_rules()
                         when 'kickoff_left'
-                                @kickoff_left_rules(wm)
+                                @kickoff_left_rules()
                         when 'kickoff_right'
-                                @kickoff_right_rules(wm)
+                                @kickoff_right_rules()
                         when 'playon'
-                                @playon_rules(wm)
+                                @playon_rules()
+                        when 'goalkick_left'
+                                @goalkick_left_rules()
+                        when 'goalkick_right'
+                                @goalkick_right_rules()
+                        when 'kickin_left'
+                                @kickin_left_rules()
+                        when 'kickin_right'
+                                @kickin_right_rules()
+                        when 'freekick_left'
+                                @freekick_left_rules()
+                        when 'freekick_right'
+                                @freekick_right_rules()
                         
         render:(canvas) ->
                 field =
@@ -96,11 +116,11 @@ class Pitch
                 # left arc
                 pen_spot_x = -( half_length - @penalty_spot_dist )
                 canvas.drawArc( @line_color,
-                     -( half_length + @penalty_spot_dist - @penalty_area_length),
-                     0,
-                     pen_circle_dia,
-                     -pen_circle_y_degree_abs,
-                     pen_circle_y_degree_abs)
+                                -( half_length + @penalty_spot_dist - @penalty_area_length),
+                                0,
+                                pen_circle_dia,
+                                -pen_circle_y_degree_abs,
+                                pen_circle_y_degree_abs)
 
                 # left rectangle
                 canvas.drawLine(@line_color, left_x, pen_top_y, pen_x, pen_top_y )
@@ -174,78 +194,172 @@ class Pitch
                 canvas.fillRect( @goal_color, right_goal)
 
 
-                #board
+                # board
                 @board.set_state(@state)
                 @board.render(canvas)
 
+        goalkick_left_rules:() ->
+                for player in @wm.rightplayers
+                        if @in_left_penalty(player.p)
+                                player.p[0] = -@pitch_length/2 + @penalty_area_length + @freekick_circle_r
 
-        before_kickoff_rules:(wm) ->
-                for player in wm.leftplayers
+                @change_state('playon') if not @in_left_penalty(@wm.ball.p)
+
+        goalkick_right_rules:() ->
+                for player in @wm.leftplayers
+                        if @in_right_penalty(player.p)
+                                player.p[0] = @pitch_length/2 - @penalty_area_length - @freekick_circle_r
+
+                @change_state('playon') if not @in_right_penalty(@wm.ball.p)
+
+
+        kickin_left_rules:() ->
+                @freekick_left_rules()
+        kickin_right_rules:() ->
+                @freekick_right_rules()
+
+        cornerkick_left_rules:() ->
+                @freekick_left_rules()
+
+        cornerkick_right_rules:() ->
+                @freekick_right_rules()
+
+        freekick_left_rules:() ->
+                for player in @wm.rightplayers
+                        @freekick_circle(player, @wm.ball.p)
+                @change_state('playon') if @last_touch_ball
+
+        freekick_right_rules:() ->
+                for player in @wm.leftplayers
+                        @freekick_circle(player, @wm.ball.p)
+                @change_state('playon') if @last_touch_ball
+                
+        freekick_circle:(player, ball) ->
+                pp = player.p
+                d = 2*@freekick_circle_r
+                if (Vector2d.distance(pp, ball) < @freekick_circle_r)
+                        ball2player = Vector2d.unit(Vector2d.subtract(pp, ball))            
+                        player.p = Vector2d.add(Vector2d.multiply(ball2player, @freekick_circle_r), ball)
+                        if player.p[0] > @pitch_length / 2
+                                player.p[0] -= d 
+                        if player.p[0] < -@pitch_length / 2
+                                player.p[0] += d
+                        if player.p[1] > @pitch_width / 2
+                                player.p[1] -= d
+                        if player.p[1] < -@pitch_width / 2
+                                player.p[1] += d
+                 
+
+
+        before_kickoff_rules:() ->
+                for player in @wm.leftplayers
                         if player.p[0] > -player.r
                                 player.p[0] = -player.r
                         if (Vector2d.distance(player.p, [0,0]) < @center_circle_r)
                                 player.p[0] = -@center_circle_r
-                for player in wm.rightplayers
+                for player in @wm.rightplayers
                         if player.p[0] < player.r
                                 player.p[0] = player.r
                         if Vector2d.distance(player.p, [0,0]) < @center_circle_r
                                 player.p[0] = @center_circle_r
 
                 if @auto_kickoff
-                        this.kickoff()
+                        @kickoff_delay -= 1
+                        @kickoff() if @kickoff_delay <= 0
 
 
         kickoff:() ->
                 switch @state
                         when 'before_kickoff'
                                 if @last_goal_side == 'left'
-                                        @state = 'kickoff_left'
+                                        @change_state('kickoff_right')
                                 else
-                                        @state = 'kickoff_right'
+                                        @change_state('kickoff_left')
                 
 
-        kickoff_left_rules:(wm) ->
-                 for player in wm.rightplayers
+        kickoff_left_rules:() ->
+                 for player in @wm.rightplayers
                         if player.p[0] < player.r
                                 player.p[0] = player.r
                         if Vector2d.distance(player.p, [0,0]) < @center_circle_r
                                 player.p[0] = @center_circle_r
 
-                 if @last_goal_side == 'left'
-                        @state = 'playon'
+                 @change_state('playon') if @last_touch_ball
                         
 
-        kickoff_right_rules:(wm) ->
-                 for player in wm.leftplayers
+        kickoff_right_rules:() ->
+                 for player in @wm.leftplayers
                         if player.p[0] > -player.r
                                 player.p[0] = -player.r
                         if Vector2d.distance(player.p, [0,0]) < @center_circle_r
                                 player.p[0] = -@center_circle_r
 
-                 if @last_goal_side == 'right'
-                        @state = 'playon'
+                 if @last_touch_ball
+                        @change_state('playon')
 
-
-               
-        playon_rules: (wm) ->
-                x = wm.ball.p[0]
-                y = wm.ball.p[1]
+        playon_rules: () ->
+                x = @wm.ball.p[0]
+                y = @wm.ball.p[1]
                 if Math.abs(y) < @goal_width / 2
-                        if x <= -@pitch_length / 2
-                                if this.is_goal(wm.ball, @goal_pillars.left_bottom, @goal_pillars.left_up)
+                        if x < -@pitch_length / 2 - @wm.ball.r
+                                if @is_goal(@wm.ball, @goal_pillars.left.bottom, @goal_pillars.left.up)
                                         @board.increase_right_score()
                                         @last_goal_side = 'right'
-                                        @state = 'before_kickoff'
-                                        wm.reset()
+                                        @reset()
+                                        @wm.ball.reset()
                                         return
+                                if @last_touch_ball is 'right'
+                                        @wm.ball.reset()
+                                        @wm.ball.p = [-@pitch_length/2 + @penalty_spot_dist, 0]
+                                        @change_state('goalkick_left')
+                                else
+                                        @wm.ball.reset()
+                                        @wm.ball.p = [-@pitch_length/2, Math.sign(y) * @pitch_width/2]
+                                        @change_state('cornerkick_right')
 
-                        if x >= @pitch_length / 2
-                                if this.is_goal(wm.ball, @goal_pillars.right_bottom, @goal_pillars.right_up)
+                        if x > @pitch_length / 2 + @wm.ball.r
+                                if @is_goal(@wm.ball, @goal_pillars.right.bottom, @goal_pillars.right.up)
                                         @board.increase_left_score()
                                         @last_goal_side = 'left'
-                                        @state = 'before_kickoff'
-                                        wm.reset()
+                                        @reset()
+                                        @wm.ball.reset()
                                         return
+                                if @last_touch_ball is 'left'
+                                         @wm.ball.reset()
+                                         @wm.ball.p = [@pitch_length/2 - @penalty_spot_dist, 0]
+                                         @change_state('goalkick_right')
+                                else
+                                        @wm.ball.reset()
+                                        @wm.ball.p = [@pitch_length/2, Math.sign(y) * @pitch_width/2]
+                                        @change_state('cornerkick_left')
+
+                else
+                        if Math.abs(y) > @pitch_width / 2 + @wm.ball.r
+                                if y > 0
+                                        y =  @pitch_width / 2
+                                else
+                                        y = -@pitch_width / 2
+
+                                x = @wm.ball.last_pos[0]
+                                @wm.ball.reset()
+                                @wm.ball.p = [x, y]
+                                if @last_touch_ball is 'left'
+                                        @change_state('kickin_right')
+                                else
+                                        @change_state('kickin_left')
+                if @board.timer > @half_time and !@second_half
+                        @second_half = true
+                        @reset()
+                        @wm.ball.reset()
+                        @auto_kickoff = true
+                        @kickoff_delay = 50
+                        @wm.switch_sides()
+                        @board.switch_sides()
+                        @last_goal_side = null
+
+                if @board.timer > 2*@half_time
+                        @change_state('game_over')
+                        
 
         is_goal: (ball, l1, l2) ->
                 x1 = ball.last_pos[0]
@@ -270,15 +384,22 @@ class Pitch
                         (u2 - u1)*(y2 - y1)*v1)/ denominator
 
                 if (x - u1)*(x - u2) <=0 and (y - v1)*(y - v2) <= 0
-                        if not @auto_kickoff
-                                @auto_kickoff = true
+                        @auto_kickoff = true
+                        @kickoff_delay = 50
                         return true
 
                 return false
 
 
         reset: () ->
-                @state = 'before_kickoff'
+                @change_state('before_kickoff')
 
 
+        change_state: (state) ->
+                @state = state
+                @last_touch_ball = null
 
+        in_left_penalty: (pos) ->
+                return pos[0] <= -@pitch_length / 2 + @penalty_area_length and Math.abs(pos[1]) <= @penalty_area_width/2
+        in_right_penalty: (pos) ->
+                return pos[0] >= @pitch_length / 2 - @penalty_area_length and Math.abs(pos[1]) <= @penalty_area_width/2

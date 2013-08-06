@@ -5,13 +5,15 @@ class ScoreBoard
                 @board_height = 50
                 @left_score = 0
                 @right_score = 0
-                @left_team_name = "unnamed"
-                @right_team_name = "unnamed"
+                @left_teamname = "unnamed"
+                @right_teamname = "unnamed"
+                @board_color  = '#000'
                 @text_color  = '#FFF'
-                @state
+                @timer = 0
 
                 
         render: (canvas) ->
+                @timer += 1 if @state is 'playon'
                 board =
                         x:-@board_length / 2,
                         y:-canvas.h / 2,
@@ -20,13 +22,15 @@ class ScoreBoard
 
                 canvas.fillRect(@board_color, board)
 
-                board_text = @left_team_name + '   ' + @left_score + ' : '
-                board_text += @right_score + '   ' + @right_team_name
+                board_text = @left_teamname + '   ' + @left_score + ' : '
+                board_text += @right_score + '   ' + @right_teamname
                 canvas.drawText(@text_color, '20px Georgia', board_text, 0, -canvas.h/2+20)
-                canvas.drawText(@text_color, '20px Georgia', @state, 0, -canvas.h/2+40)
+                canvas.drawText(@text_color, '20px Georgia', @state + '  ' + parseInt(@timer/10), 0, -canvas.h/2+40)
 
-        update: () ->
-                a = 1
+        reset: () ->
+                @timer = 0
+                @left_score = 0
+                @right_score = 0
 
         set_state: (st) ->
                 @state = st
@@ -37,4 +41,7 @@ class ScoreBoard
         increase_right_score: () ->
                 @right_score += 1
 
+        switch_sides: () ->
+                [@left_score, @right_score] = [@right_score, @left_score]
+                [@left_teamname, @right_teamname] = [@right_teamname, @left_teamname]
                 

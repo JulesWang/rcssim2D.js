@@ -4,12 +4,12 @@ class Player
                 @fc = 'grey'
                 @sc = 'black'
                 @m = 5.0 #kg
-                @r = 10
+                @r = 7.5
                 @t = 'none'
                 @v = [0, 0]
                 @decay = 0.4
                 @maxdashforce = 6
-                @maxkickforce = 2
+                @maxkickforce = 2.0
                 @maxturnangle = 0.1
                 @force = 0
                 @kickforce = 0
@@ -37,12 +37,14 @@ class Player
                 canvas.fillArc(stroke_color, x, y, @r, @d-2*Math.PI/5, @d+2*Math.PI/5)
         take_action:() ->
                 actions = @client.think(@getbasicinfo())
+                #console.log(actions) if @side is 'right'
                 for action of actions
                         switch action
                                 when 'jump' then @jump(actions['jump'])
                                 when 'dash' then @dash(actions['dash'])
                                 when 'turn' then @turn(actions['turn'])
                                 when 'kick' then @kick(actions['kick'])
+                                when 'suck' then @suck()
 
 
         update:() ->
@@ -82,11 +84,11 @@ class Player
                 return if not @wm
 
                 bp = @wm.ball.p
-                return if Vector2d.distance(@p, bp) > 20
+                return if Vector2d.distance(@p, bp) > @r + @wm.ball.r+3
 
                 p2b = Vector2d.subtract(bp, @p)
                 unitv = Vector2d.vector(@d)
-                return if Math.abs(Vector2d.angle(p2b, unitv) ) > Math.PI/6
+                return if Math.abs(Vector2d.angle(p2b, unitv)) > Math.PI/6
 
                 force = @maxkickforce if force > @maxkickforce
             
@@ -97,7 +99,26 @@ class Player
                 @p = clone(pos)
                 @p = @transpos(@p)
 
+        # Goalie only, our robots dont have hands, so they suck like the cleaner
+        suck:() ->
+                pos = @transpos(@wm.ball.p)
+                return if @client.teamnum != 0
+                return if pos[0] > -@wm.pitch.pitch_length/2 + @wm.pitch.penalty_area_length
+                return if pos[1] > @wm.pitch.penalty_area_width/2
 
+                bp = @wm.ball.p
+                return if Vector2d.distance(@p, bp) > @r + @wm.ball.r + 3
+
+                p2b = Vector2d.subtract(bp, @p)
+                unitv = Vector2d.vector(@d)
+                return if Math.abs(Vector2d.angle(p2b, unitv)) > Math.PI/6
+               
+                unitdir = Vector2d.vector(@d)
+                @wm.ball.p = Vector2d.add(Vector2d.multiply(unitdir, @wm.ball.r + @r + 0.1), @p)
+                @wm.ball.v = [0,0]
+                
+                @wm.pitch.change_state('goalkick_' + @side)
+ 
         getbasicinfo:() ->
                 wm = {}
                 wm.leftplayers = []
@@ -122,9 +143,7 @@ class Player
         # the x axis of our half-field is always negative.
         transpos:(p) ->
                 return p if @side is 'left'
-                p[0] = -p[0]
-                p[1] = -p[1]
-                return p
+                return [-p[0], -p[1]]
 
         transdir:(dir) ->
                 return dir if @side is 'left'

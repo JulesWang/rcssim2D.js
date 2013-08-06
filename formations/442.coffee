@@ -20,6 +20,6 @@ class Fmt442
                         {x:0, y:@wing1, ratio:@ratio.m} #m
                         {x:0, y:-@wing1, ratio:@ratio.m} #m
                         {x:0, y:@center, ratio:@ratio.f} #f
-                        {x:0, y:-@center, ratio:@ratio.f} #f
+                        {x:0, y:-@center, ratio:@ratio.f+0.1} #f
                 ]
 
