@@ -302,14 +302,14 @@ class Pitch
                                 if @is_goal(@wm.ball, @goal_pillars.left.bottom, @goal_pillars.left.up)
                                         @board.increase_right_score()
                                         @last_goal_side = 'right'
-                                        @reset()
+                                        @change_state('before_kickoff')
                                         @wm.ball.reset()
                                         return
                         if x > @pitch_length / 2 + @wm.ball.r
                                 if @is_goal(@wm.ball, @goal_pillars.right.bottom, @goal_pillars.right.up)
                                         @board.increase_left_score()
                                         @last_goal_side = 'left'
-                                        @reset()
+                                        @change_state('before_kickoff')
                                         @wm.ball.reset()
                                         return
                 else

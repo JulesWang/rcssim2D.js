@@ -712,7 +712,7 @@
           if (this.is_goal(this.wm.ball, this.goal_pillars.left.bottom, this.goal_pillars.left.up)) {
             this.board.increase_right_score();
             this.last_goal_side = 'right';
-            this.reset();
+            this.change_state('before_kickoff');
             this.wm.ball.reset();
             return;
           }
@@ -721,7 +721,7 @@
           if (this.is_goal(this.wm.ball, this.goal_pillars.right.bottom, this.goal_pillars.right.up)) {
             this.board.increase_left_score();
             this.last_goal_side = 'left';
-            this.reset();
+            this.change_state('before_kickoff');
             this.wm.ball.reset();
             return;
           }
