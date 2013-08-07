@@ -17,7 +17,7 @@ class Pitch
                 @goal_depth = 24.4
                 @goal_post_radius = 0.6
                 @corner_arc_r = 10
-                @half_time = 100
+                @half_time = 10000
                 @goal_pillars =
                         left :
                                 up : [-(@pitch_length/2), (@goal_width/2)]
@@ -37,9 +37,6 @@ class Pitch
                 @kickoff_delay = 0
 
                 @second_half = false
-
-                @board = new ScoreBoard()
-
 
         checkrules:(wm) ->
                 @wm = wm
@@ -308,15 +305,6 @@ class Pitch
                                         @reset()
                                         @wm.ball.reset()
                                         return
-                                if @last_touch_ball is 'right'
-                                        @wm.ball.reset()
-                                        @wm.ball.p = [-@pitch_length/2 + @penalty_spot_dist, 0]
-                                        @change_state('goalkick_left')
-                                else
-                                        @wm.ball.reset()
-                                        @wm.ball.p = [-@pitch_length/2, Math.sign(y) * @pitch_width/2]
-                                        @change_state('cornerkick_right')
-
                         if x > @pitch_length / 2 + @wm.ball.r
                                 if @is_goal(@wm.ball, @goal_pillars.right.bottom, @goal_pillars.right.up)
                                         @board.increase_left_score()
@@ -324,15 +312,6 @@ class Pitch
                                         @reset()
                                         @wm.ball.reset()
                                         return
-                                if @last_touch_ball is 'left'
-                                         @wm.ball.reset()
-                                         @wm.ball.p = [@pitch_length/2 - @penalty_spot_dist, 0]
-                                         @change_state('goalkick_right')
-                                else
-                                        @wm.ball.reset()
-                                        @wm.ball.p = [@pitch_length/2, Math.sign(y) * @pitch_width/2]
-                                        @change_state('cornerkick_left')
-
                 else
                         if Math.abs(y) > @pitch_width / 2 + @wm.ball.r
                                 if y > 0
@@ -347,6 +326,32 @@ class Pitch
                                         @change_state('kickin_right')
                                 else
                                         @change_state('kickin_left')
+                                return
+
+                if x < -@pitch_length / 2 - @wm.ball.r
+                        if @last_touch_ball is 'right'
+                                @wm.ball.reset()
+                                @wm.ball.p = [-@pitch_length/2 + @penalty_spot_dist, 0]
+                                @change_state('goalkick_left')
+                        else
+                                @wm.ball.reset()
+                                @wm.ball.p = [-@pitch_length/2, Math.sign(y) * @pitch_width/2]
+                                @change_state('cornerkick_right')
+                        return
+
+                if x > @pitch_length / 2 + @wm.ball.r
+                        if @last_touch_ball is 'left'
+                                 @wm.ball.reset()
+                                 @wm.ball.p = [@pitch_length/2 - @penalty_spot_dist, 0]
+                                 @change_state('goalkick_right')
+                        else
+                                @wm.ball.reset()
+                                @wm.ball.p = [@pitch_length/2, Math.sign(y) * @pitch_width/2]
+                                @change_state('cornerkick_left')
+                        return
+
+
+
                 if @board.timer > @half_time and !@second_half
                         @second_half = true
                         @reset()
@@ -394,7 +399,8 @@ class Pitch
 
         reset: () ->
                 @change_state('before_kickoff')
-
+                @auto_kickoff = true
+                @kickoff_delay = 100
 
         change_state: (state) ->
                 @state = state

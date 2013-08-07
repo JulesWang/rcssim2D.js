@@ -1,17 +1,17 @@
 
-class Foo
+class Bar
         constructor:(num, side) ->
                 # DO NOT MODIFY FOLLOWING VARIBLE NAMES
                 # choose a nice name for your team
-                @teamname = 'Foo'
+                @teamname = 'Bar'
                 # choose a distinctive color for your team
-                @fill_color = 'red'
+                @fill_color = 'lightblue'
                 @teamnum = num
                 @side = side
                 #--------------------------------------
 
                 @fmt = new Fmt442()
-                @eps = Math.PI/6
+                @eps = Math.PI/11
 
         getfmtpos:(bp) ->
                 pos = @fmt.p[@teamnum]

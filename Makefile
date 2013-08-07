@@ -14,12 +14,11 @@ SERVER+= src/player.coffee
 SERVER+= src/keyhandle.coffee
 
 
-CLIENT+= teams/share.coffee
+CLIENT+= teams/*.coffee
 CLIENT+= formations/442.coffee
 CLIENT+= src/math.coffee
 CLIENT+= src/vector2d.coffee
 
-CLIENT+= teams/foo.coffee
 
 .PHONY: all clean compile minify
 

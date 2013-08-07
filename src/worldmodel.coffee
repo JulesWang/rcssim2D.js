@@ -33,14 +33,15 @@ class WorldModel
                         obj.reset() if obj.reset
 
         switch_sides: () ->
-                [@rightplayers, @leftplayers] = [@leftplayers, @rightplayers]
-
-                for player in @leftplayers
-                        player.side = 'left'
-                        player.client.side = 'left'
-                for player in @rightplayers
-                        player.side = 'right'
-                        player.client.side = 'right'
+                i = 0
+                for left_player in @leftplayers
+                        right_player = @rightplayers[i]
+        
+                        [left_player.client, right_player.client] = [right_player.client, left_player.client]
+                        [left_player.sc, right_player.sc] = [right_player.sc, left_player.sc]
+                        left_player.client.side = 'left'
+                        right_player.client.side = 'right'
+                        i += 1
 
         collide: (x,y) ->
                 return if not x.r
@@ -49,9 +50,9 @@ class WorldModel
                 return if dis > x.r+y.r
 
                 # hack
-                if x.r > y.r
+                if x.r > y.r and x.side
                         @pitch.last_touch_ball = x.side
-                if x.r < y.r
+                if x.r < y.r and y.side
                         @pitch.last_touch_ball = y.side
                 m1 = x.m
                 m2 = y.m

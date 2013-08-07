@@ -5,8 +5,8 @@ class ScoreBoard
                 @board_height = 50
                 @left_score = 0
                 @right_score = 0
-                @left_teamname = "unnamed"
-                @right_teamname = "unnamed"
+                @left_teamname = "???"
+                @right_teamname = "???"
                 @board_color  = '#000'
                 @text_color  = '#FFF'
                 @timer = 0

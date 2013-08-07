@@ -1,8 +1,8 @@
 
 class Player
-        constructor:(p, dir, wm, side) ->
+        constructor:(p, dir, wm, side, color) ->
                 @fc = 'grey'
-                @sc = 'black'
+                @sc = color
                 @m = 5.0 #kg
                 @r = 7.5
                 @t = 'none'
@@ -26,8 +26,12 @@ class Player
         
         render:(canvas) ->
                 # draw body
-                stroke_color = @client.stroke_color ? @sc
-                fill_color = @client.fill_color ? @fc
+                if !@client or !@client.fill_color
+                        fill_color = @fc
+                else
+                        fill_color = @client.fill_color
+
+                stroke_color = @sc
                 x = @p[0]
                 y = @p[1]
                 canvas.fillCircle(fill_color, x, y, @r)
@@ -36,8 +40,8 @@ class Player
                 # draw dir, sc
                 canvas.fillArc(stroke_color, x, y, @r, @d-2*Math.PI/5, @d+2*Math.PI/5)
         take_action:() ->
+                return if not @client
                 actions = @client.think(@getbasicinfo())
-                #console.log(actions) if @side is 'right'
                 for action of actions
                         switch action
                                 when 'jump' then @jump(actions['jump'])

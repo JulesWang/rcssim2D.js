@@ -3,6 +3,8 @@ main = () ->
         width = 1280.0
         height = 800.0
         playernum = 11
+        host_color = 'black'
+        guest_color = 'blue'
 
         c = document.getElementById("myCanvas")
         ctx = c.getContext("2d")
@@ -31,34 +33,63 @@ main = () ->
         pitch = new Pitch()
         world.register(pitch)
         world.pitch = pitch
-        pitch.board.left_teamname = 'foo'
-        pitch.board.right_teamname = 'bar'
+
+        board = new ScoreBoard()
+        world.register(board)
+        pitch.board = board
 
         ball = new Ball(0, 0)
         world.register(ball)
         world.ball = ball
 
         for i in [0...playernum]
-                player = new Player([-500+i*30, 360], 0, world, 'left')
+                player = new Player([-500+i*30, 360], 0, world, 'left', host_color)
                 world.register(player)
                 world.leftplayers.push player
 
-                player = new Player([-500+i*30, 360], 0, world, 'right')
+                player = new Player([-500+i*30, -360], 0, world, 'right', guest_color)
                 world.register(player)
                 world.rightplayers.push player
 
         start_game = () ->
+                left = left_select.options[left_select.selectedIndex].text
+                right = right_select.options[right_select.selectedIndex].text
+                pitch.board.left_teamname = left
+                pitch.board.right_teamname = right
                 i = 0
                 for player in world.leftplayers
-                        player.client = new client1.Foo(i, 'left')
+                        #player.client = new client1.Foo(i, 'left')
+                        eval('player.client = new client1.' + left + '(i, \'left\')')
                         i += 1
                 i = 0
                 for player in world.rightplayers
-                        player.client = new client2.Foo(i, 'right')
-                        player.client.fill_color = 'lightblue'
+                        #player.client = new client2.Foo(i, 'right')
+                        eval('player.client = new client2.' + right + '(i, \'right\')')
                         i += 1
 
-        start_game()
+                world.reset()
+
+
+        setInterval ()->
+                gameloop(world, canvas)
+        , 20
+
+
+        left_select = document.getElementById("left-select")
+        right_select = document.getElementById("right-select")
+        start_button = document.getElementById("start")
+
+        for teamname of client1
+                option = document.createElement('option')
+                option.text = teamname
+                left_select.add(option, null)
+
+        for teamname of client2
+                option = document.createElement('option')
+                option.text = teamname
+                right_select.add(option, null)
+
+        start_button.addEventListener('click', start_game)
         
         document.addEventListener('mousedown', (ev)->
                         if ev.offsetX is undefined
@@ -73,9 +104,6 @@ main = () ->
                         onkeydown(ev, world)
                 , false)
 
-        setInterval ()->
-                gameloop(world, canvas)
-        , 20
 
         window.onresize = () ->
                 c.width = window.innerWidth
