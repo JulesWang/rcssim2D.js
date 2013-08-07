@@ -1,8 +1,8 @@
 
 class Player
-        constructor:(p, dir, wm, side, color) ->
+        constructor:(p, dir, wm, side) ->
                 @fc = 'grey'
-                @sc = color
+                @sc = 'black'
                 @m = 5.0 #kg
                 @r = 7.5
                 @t = 'none'

@@ -57,10 +57,10 @@ class Pitch
                                 @kickin_left_rules()
                         when 'kickin_right'
                                 @kickin_right_rules()
-                        when 'freekick_left'
-                                @freekick_left_rules()
-                        when 'freekick_right'
-                                @freekick_right_rules()
+                        when 'cornerkick_left'
+                                @cornerkick_left_rules()
+                        when 'cornerkick_right'
+                                @cornerkick_right_rules()
                         
         render:(canvas) ->
                 field =
@@ -354,7 +354,7 @@ class Pitch
 
                 if @board.timer > @half_time and !@second_half
                         @second_half = true
-                        @reset()
+                        @change_state('before_kickoff')
                         @wm.ball.reset()
                         @auto_kickoff = true
                         @kickoff_delay = 50
@@ -401,10 +401,12 @@ class Pitch
                 @change_state('before_kickoff')
                 @auto_kickoff = true
                 @kickoff_delay = 100
+                @second_half = false
+                @last_goal_side = null
 
         change_state: (state) ->
                 @state = state
-                @last_touch_ball = null
+                @last_touch_ball = null if @state != 'playon'
 
         in_left_penalty: (pos) ->
                 return pos[0] <= -@pitch_length / 2 + @penalty_area_length and Math.abs(pos[1]) <= @penalty_area_width/2

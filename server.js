@@ -126,9 +126,9 @@
   };
 
   Player = (function() {
-    function Player(p, dir, wm, side, color) {
+    function Player(p, dir, wm, side) {
       this.fc = 'grey';
-      this.sc = color;
+      this.sc = 'black';
       this.m = 5.0;
       this.r = 7.5;
       this.t = 'none';
@@ -452,10 +452,10 @@
           return this.kickin_left_rules();
         case 'kickin_right':
           return this.kickin_right_rules();
-        case 'freekick_left':
-          return this.freekick_left_rules();
-        case 'freekick_right':
-          return this.freekick_right_rules();
+        case 'cornerkick_left':
+          return this.cornerkick_left_rules();
+        case 'cornerkick_right':
+          return this.cornerkick_right_rules();
       }
     };
 
@@ -754,6 +754,7 @@
           this.wm.ball.p = [-this.pitch_length / 2, Math.sign(y) * this.pitch_width / 2];
           this.change_state('cornerkick_right');
         }
+        return;
       }
       if (x > this.pitch_length / 2 + this.wm.ball.r) {
         if (this.last_touch_ball === 'left') {
@@ -765,10 +766,11 @@
           this.wm.ball.p = [this.pitch_length / 2, Math.sign(y) * this.pitch_width / 2];
           this.change_state('cornerkick_left');
         }
+        return;
       }
       if (this.board.timer > this.half_time && !this.second_half) {
         this.second_half = true;
-        this.reset();
+        this.change_state('before_kickoff');
         this.wm.ball.reset();
         this.auto_kickoff = true;
         this.kickoff_delay = 50;
@@ -808,12 +810,16 @@
     Pitch.prototype.reset = function() {
       this.change_state('before_kickoff');
       this.auto_kickoff = true;
-      return this.kickoff_delay = 100;
+      this.kickoff_delay = 100;
+      this.second_half = false;
+      return this.last_goal_side = null;
     };
 
     Pitch.prototype.change_state = function(state) {
       this.state = state;
-      return this.last_touch_ball = null;
+      if (this.state !== 'playon') {
+        return this.last_touch_ball = null;
+      }
     };
 
     Pitch.prototype.in_left_penalty = function(pos) {
@@ -1173,12 +1179,10 @@
   };
 
   main = function() {
-    var ball, board, c, canvas, ctx, guest_color, height, host_color, i, left_select, offsetX, offsetY, option, pitch, player, playernum, ratio, ratioh, ratiow, right_select, start_button, start_game, teamname, width, world, _i;
+    var ball, board, c, canvas, ctx, height, i, left_select, offsetX, offsetY, option, pitch, player, playernum, ratio, ratioh, ratiow, right_select, start_button, start_game, teamname, width, world, _i;
     width = 1280.0;
     height = 800.0;
     playernum = 11;
-    host_color = 'black';
-    guest_color = 'blue';
     c = document.getElementById("myCanvas");
     ctx = c.getContext("2d");
     c.width = window.innerWidth;
@@ -1207,15 +1211,17 @@
     world.register(ball);
     world.ball = ball;
     for (i = _i = 0; 0 <= playernum ? _i < playernum : _i > playernum; i = 0 <= playernum ? ++_i : --_i) {
-      player = new Player([-500 + i * 30, 360], 0, world, 'left', host_color);
+      player = new Player([-500 + i * 30, 360], 0, world, 'left');
       world.register(player);
       world.leftplayers.push(player);
-      player = new Player([-500 + i * 30, -360], 0, world, 'right', guest_color);
+      player = new Player([-500 + i * 30, -360], 0, world, 'right');
       world.register(player);
       world.rightplayers.push(player);
     }
     start_game = function() {
-      var left, right, _j, _k, _len, _len1, _ref, _ref1;
+      var guest_color, host_color, left, right, _j, _k, _len, _len1, _ref, _ref1;
+      host_color = 'black';
+      guest_color = 'blue';
       left = left_select.options[left_select.selectedIndex].text;
       right = right_select.options[right_select.selectedIndex].text;
       pitch.board.left_teamname = left;
@@ -1225,6 +1231,7 @@
       for (_j = 0, _len = _ref.length; _j < _len; _j++) {
         player = _ref[_j];
         eval('player.client = new client1.' + left + '(i, \'left\')');
+        player.sc = host_color;
         i += 1;
       }
       i = 0;
@@ -1232,6 +1239,7 @@
       for (_k = 0, _len1 = _ref1.length; _k < _len1; _k++) {
         player = _ref1[_k];
         eval('player.client = new client2.' + right + '(i, \'right\')');
+        player.sc = guest_color;
         i += 1;
       }
       return world.reset();

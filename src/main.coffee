@@ -3,8 +3,6 @@ main = () ->
         width = 1280.0
         height = 800.0
         playernum = 11
-        host_color = 'black'
-        guest_color = 'blue'
 
         c = document.getElementById("myCanvas")
         ctx = c.getContext("2d")
@@ -43,28 +41,34 @@ main = () ->
         world.ball = ball
 
         for i in [0...playernum]
-                player = new Player([-500+i*30, 360], 0, world, 'left', host_color)
+                player = new Player([-500+i*30, 360], 0, world, 'left')
                 world.register(player)
                 world.leftplayers.push player
 
-                player = new Player([-500+i*30, -360], 0, world, 'right', guest_color)
+                player = new Player([-500+i*30, -360], 0, world, 'right')
                 world.register(player)
                 world.rightplayers.push player
 
         start_game = () ->
+                host_color = 'black'
+                guest_color = 'blue'
+
                 left = left_select.options[left_select.selectedIndex].text
                 right = right_select.options[right_select.selectedIndex].text
+
                 pitch.board.left_teamname = left
                 pitch.board.right_teamname = right
                 i = 0
                 for player in world.leftplayers
                         #player.client = new client1.Foo(i, 'left')
                         eval('player.client = new client1.' + left + '(i, \'left\')')
+                        player.sc = host_color
                         i += 1
                 i = 0
                 for player in world.rightplayers
                         #player.client = new client2.Foo(i, 'right')
                         eval('player.client = new client2.' + right + '(i, \'right\')')
+                        player.sc = guest_color
                         i += 1
 
                 world.reset()
