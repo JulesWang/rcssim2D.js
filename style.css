@@ -1,0 +1,18 @@
+#match {
+  width: 40%;
+  position: absolute;
+  bottom: -35px;
+  left: 30%;
+  opacity: 0.5;
+  transition: bottom 500ms ease-in, opacity 100ms ease-in;
+  background-color: #eee;
+  border-radius: 5px 5px 0px 0px;
+  padding: 10px 0px;
+  text-align:center;
+}
+
+
+#match:hover{
+  bottom: 0px;
+  opacity: 0.9;
+}

@@ -19,10 +19,10 @@ class Player
                 @side = side
                 @p = @transpos(p)
                 @d = @transdir(dir)
+                @initpos = clone(@p)
 
         reset:() ->
-                #TODO
-                return
+                @p = clone(@initpos)
         
         render:(canvas) ->
                 # draw body

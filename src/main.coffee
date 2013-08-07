@@ -38,17 +38,27 @@ main = () ->
         world.register(ball)
         world.ball = ball
 
-        for i in [0...11]
+        for i in [0...playernum]
                 player = new Player([-500+i*30, 360], 0, world, 'left')
-                player.client = new Foo(i, 'left')
                 world.register(player)
                 world.leftplayers.push player
-        for i in [0...11]
+
                 player = new Player([-500+i*30, 360], 0, world, 'right')
-                player.client = new Foo(i, 'right')
-                player.client.fill_color = 'lightblue'
                 world.register(player)
                 world.rightplayers.push player
+
+        start_game = () ->
+                i = 0
+                for player in world.leftplayers
+                        player.client = new client1.Foo(i, 'left')
+                        i += 1
+                i = 0
+                for player in world.rightplayers
+                        player.client = new client2.Foo(i, 'right')
+                        player.client.fill_color = 'lightblue'
+                        i += 1
+
+        start_game()
         
         document.addEventListener('mousedown', (ev)->
                         if ev.offsetX is undefined

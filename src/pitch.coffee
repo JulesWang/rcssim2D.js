@@ -17,9 +17,9 @@ class Pitch
                 @goal_depth = 24.4
                 @goal_post_radius = 0.6
                 @corner_arc_r = 10
-                @half_time = 10000
-                @goal_pillars = 
-                        left : 
+                @half_time = 100
+                @goal_pillars =
+                        left :
                                 up : [-(@pitch_length/2), (@goal_width/2)]
                                 bottom : [-(@pitch_length/2), -(@goal_width/2)]
                         right:
@@ -31,7 +31,7 @@ class Pitch
                 @goal_color  = '#000'
 
                 @state = "before_kickoff"
-                @last_goal_side = 
+                @last_goal_side = null
 
                 @auto_kickoff = false
                 @kickoff_delay = 0
@@ -238,10 +238,10 @@ class Pitch
                 pp = player.p
                 d = 2*@freekick_circle_r
                 if (Vector2d.distance(pp, ball) < @freekick_circle_r)
-                        ball2player = Vector2d.unit(Vector2d.subtract(pp, ball))            
+                        ball2player = Vector2d.unit(Vector2d.subtract(pp, ball))
                         player.p = Vector2d.add(Vector2d.multiply(ball2player, @freekick_circle_r), ball)
                         if player.p[0] > @pitch_length / 2
-                                player.p[0] -= d 
+                                player.p[0] -= d
                         if player.p[0] < -@pitch_length / 2
                                 player.p[0] += d
                         if player.p[1] > @pitch_width / 2
@@ -360,6 +360,7 @@ class Pitch
                 if @board.timer > 2*@half_time
                         @change_state('game_over')
                         
+                        
 
         is_goal: (ball, l1, l2) ->
                 x1 = ball.last_pos[0]
@@ -375,12 +376,12 @@ class Pitch
                 if denominator == 0
                         return false
 
-                x = ((x2 - x1)*(u2 - u1)*(v1-y1) + 
-                        (y2 - y1)*(u2 - u1)*x1 - 
+                x = ((x2 - x1)*(u2 - u1)*(v1-y1) +
+                        (y2 - y1)*(u2 - u1)*x1 -
                         (v2 - v1)*(x2 - x1)*u1)/ denominator
 
-                y = ((y2 - y1)*(v2 - v1)*(u1-x1) + 
-                        (x2 - x1)*(v2 - v1)*y1 - 
+                y = ((y2 - y1)*(v2 - v1)*(u1-x1) +
+                        (x2 - x1)*(v2 - v1)*y1 -
                         (u2 - u1)*(y2 - y1)*v1)/ denominator
 
                 if (x - u1)*(x - u2) <=0 and (y - v1)*(y - v2) <= 0

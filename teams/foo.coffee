@@ -3,16 +3,14 @@ class Foo
         constructor:(num, side) ->
                 # DO NOT MODIFY FOLLOWING VARIBLE NAMES
                 # choose a nice name for your team
-                @teamname = 'Foo' 
+                @teamname = 'Foo'
                 # choose a distinctive color pair for your team
-                @fill_color = 'red' 
+                @fill_color = 'red'
                 @stroke_color = 'black'
                 @teamnum = num
                 @side = side
 
-
                 @fmt = new Fmt442()
-                
 
         getfmtpos:(bp) ->
                 pos = @fmt.p[@teamnum]
@@ -33,12 +31,12 @@ class Foo
                         when 'before_kickoff' then return {jump:@getfmtpos(@wm.ball, @teamnum)}
                         when 'game_over' then return {}
                         when 'play_on' then return @playon()
-                        when 'goalkick_left' 
+                        when 'goalkick_left'
                                 if @side is 'left'
                                         return @goalkick()
                                 else
                                         return @playon()
-                        when 'goalkick_right' 
+                        when 'goalkick_right'
                                 if @side is 'right'
                                         return @goalkick()
                                 else
