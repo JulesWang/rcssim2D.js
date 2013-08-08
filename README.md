@@ -29,7 +29,8 @@ Let`s fork a team.
 
 *unix user could use `forkteam.sh` to fork a team:
 
-> ./forkteam.sh <team name> <team color>
+> ./forkteam.sh \<team name\> \<team color\>
+
 >  example:  ./forkteam.sh Apollo '#FF4500'
 
 or fork by hand:
@@ -39,8 +40,9 @@ or fork by hand:
 Then, open the coffee file, change the class name and @teamname to <your team name> and pick a color as @fill_color 
 of your team.
 
-Append one line 'root.client1.<team name> = <team name>' to src/client1.coffee. 
-Append one line 'root.client2.<team name> = <team name>' to src/client2.coffee.
+Append one line 'root.client1.\<team name\> = \<team name\>' to src/client1.coffee. 
+
+Append one line 'root.client2.\<team name\> = \<team name\>' to src/client2.coffee.
 
 
 Lasly, let`s make
