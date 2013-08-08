@@ -5,7 +5,7 @@ body {
 #match {
   width: 40%;
   position: absolute;
-  bottom: -36px;
+  bottom: -30px;
   left: 30%;
   transition: bottom 500ms ease-in;
   background-color: #eee;
