@@ -37,7 +37,7 @@ or fork by hand:
 
 > cp teams/foo.coffee teams/<your team name>.coffee
 
-Then, open the coffee file, change the class name and @teamname to <your team name> and pick a color as @fill_color 
+Then, open the coffee file, change the class name and @teamname to \<team name\> and pick a color as @fill_color 
 of your team.
 
 Append one line 'root.client1.\<team name\> = \<team name\>' to src/client1.coffee. 
