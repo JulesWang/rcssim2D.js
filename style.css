@@ -5,12 +5,12 @@ body {
 #match {
   width: 40%;
   position: absolute;
-  bottom: -30px;
+  bottom: -45px;
   left: 30%;
   transition: bottom 500ms ease-in;
   background-color: #eee;
   border-radius: 9px 9px 0px 0px;
-  padding: 10px 0px;
+  padding: 20px 0px;
   text-align:center;
   opacity: 0.9;
 }
@@ -23,6 +23,12 @@ body {
   width: 80px;
 }
 
+#match-logo {
+  float: left;
+  margin-top: -18px;
+  margin-left: 10px;
+  font-weight: bold;
+}
 #news {
   position: absolute;
   left: -400px;
