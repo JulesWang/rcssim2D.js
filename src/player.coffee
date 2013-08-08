@@ -4,7 +4,7 @@ class Player
                 @fc = 'grey'
                 @sc = 'black'
                 @m = 5.0 #kg
-                @r = 7.5
+                @r = 8
                 @t = 'none'
                 @v = [0, 0]
                 @decay = 0.4
