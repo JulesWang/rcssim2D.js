@@ -45,7 +45,7 @@ Append one line 'root.client1.\<team name\> = \<team name\>' to src/client1.coff
 Append one line 'root.client2.\<team name\> = \<team name\>' to src/client2.coffee.
 
 
-Lasly, let`s make
+Lastly, let`s make
 > make
 
 Open the index.html, your will find your team in the control panel.
