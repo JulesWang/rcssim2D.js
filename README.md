@@ -50,11 +50,14 @@ Lastly, let`s make
 
 Open the index.html, your will find your team in the control panel.
 
+This [client commands cheatsheet](https://github.com/JulesWang/rcssim2D.js/wiki/Client-Commands) will be helpfull when
+you start to develop your team.
+
 ## Send pull request ##
 
 Send pull request when you are ready to go.
 
-When the code is merged, your team becomes a memeber of league.
+If the code is merged, your team becomes the memeber of league consequentially.
 
 
 
