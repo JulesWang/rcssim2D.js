@@ -15,7 +15,7 @@ How to join the league?
 Just press the 'Fork' button.
 
 ###Build your team###
-Before you build your team, the develop tools should be installed first.
+Before build your team, the develop tools should be installed first.
 
 Firstly, install `node.js` [from binary](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager) or
 [from source](https://github.com/joyent/node/wiki/Installation)

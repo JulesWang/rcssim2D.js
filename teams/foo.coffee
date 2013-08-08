@@ -61,7 +61,7 @@ class Foo
                 else
                         return @goto(@getfmtpos(@wm.ball, @teamnum))
 
-        play: () -> 
+        play: () ->
                 if player_near_ball(@teammates, @wm.ball) is @teamnum
                         return @go_and_kick(@wm.ball)
                 else

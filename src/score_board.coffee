@@ -24,8 +24,8 @@ class ScoreBoard
 
                 board_text = @left_teamname + '   ' + @left_score + ' : '
                 board_text += @right_score + '   ' + @right_teamname
-                canvas.drawText(@text_color, '20px Georgia', board_text, 0, -canvas.h/2+20)
-                canvas.drawText(@text_color, '20px Georgia', @state + '  ' + parseInt(@timer/10), 0, -canvas.h/2+40)
+                canvas.drawText(@text_color, '20px play', board_text, 0, -canvas.h/2+20)
+                canvas.drawText(@text_color, '20px play', @state + '  ' + parseInt(@timer/10), 0, -canvas.h/2+40)
 
         reset: () ->
                 @timer = 0

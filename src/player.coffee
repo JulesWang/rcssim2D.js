@@ -86,6 +86,7 @@ class Player
 
         kick:(force) ->
                 return if not @wm
+                return if force <= 0
 
                 bp = @wm.ball.p
                 return if Vector2d.distance(@p, bp) > @r + @wm.ball.r+3

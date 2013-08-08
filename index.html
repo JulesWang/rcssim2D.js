@@ -7,23 +7,41 @@
                 <meta name="description" content="Soccer Simulator 2D">
                 <meta name="viewport" content="width=device-width">
 		<link rel="stylesheet" type="text/css" href="./style.css">
+		<link href='http://fonts.googleapis.com/css?family=Play:400,700' rel='stylesheet' type='text/css'>
                 <script type="text/javascript" src="./server.js"></script>
                 <script type="text/javascript" src="./client1.js"></script>
                 <script type="text/javascript" src="./client2.js"></script>
         </head>
-	<body style="width:  100%;   height: 100%;   margin: 0px; overflow: hidden">
+	<body style="width: 100%; height: 100%; margin: 0px; overflow: hidden">
 
 		<canvas id="myCanvas" style="margin: auto; display: block;">
 			Your browser does not support the HTML5 canvas tag.
 		</canvas>
 		<div id='match'>
-
 			<select id='left-select' ></select>
 				VS.
 			<select id='right-select'></select>
 			<button id='start'>Start Game</button>
-			
 		</div>
+
+		<div id='news'>
+			<div id='news-logo'>NEWS</div>
+			<div class='news-text'>
+				Welcome to Robot Soccer Simulation 2D League!<br/>
+				<br/>
+				The league matches will be started as soon as the number of teams reaches 32.<br/>
+				<br/>
+				How to join the league ? <br/>
+				<ol>
+				<li>Fork this repo</li>
+				<li>Build your team</li>
+				<li>Send pull request</li>
+				</ol>
+				<a href='https://github.com/JulesWang/rcssim2D.js/blob/gh-pages/README.md'>Read More...</a>
+			</div>
+		</div>
+
+		<a id='ribbon' href="https://github.com/JulesWang/rcssim2D.js"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png" alt="Fork me on GitHub"></a>
 		<script>
                         window.onload = main;
 		</script>
