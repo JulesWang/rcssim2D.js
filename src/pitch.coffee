@@ -312,7 +312,7 @@ class Pitch
         playon_rules: () ->
                 x = @wm.ball.p[0]
                 y = @wm.ball.p[1]
-                if Math.abs(y) < @goal_width / 2
+                if Math.abs(y) < @goal_width / 2 - @wm.ball.r
                         if x < -@pitch_length / 2 - @wm.ball.r
                                 if @is_goal(@wm.ball, @goal_pillars.left.bottom, @goal_pillars.left.up)
                                         @board.increase_right_score()
@@ -404,7 +404,7 @@ class Pitch
                         (x2 - x1)*(v2 - v1)*y1 -
                         (u2 - u1)*(y2 - y1)*v1)/ denominator
 
-                if (x - u1)*(x - u2) <=0 and (y - v1)*(y - v2) <= 0
+                if (x - u1)*(x - u2) <=0 and (y - v1)*(y - v2) <= 0 and (x2-x1)*u1 > 0
                         @auto_kickoff = true
                         @kickoff_delay = 50
                         return true

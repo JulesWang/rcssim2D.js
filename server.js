@@ -710,7 +710,7 @@
       var x, y;
       x = this.wm.ball.p[0];
       y = this.wm.ball.p[1];
-      if (Math.abs(y) < this.goal_width / 2) {
+      if (Math.abs(y) < this.goal_width / 2 - this.wm.ball.r) {
         if (x < -this.pitch_length / 2 - this.wm.ball.r) {
           if (this.is_goal(this.wm.ball, this.goal_pillars.left.bottom, this.goal_pillars.left.up)) {
             this.board.increase_right_score();
@@ -802,7 +802,7 @@
       }
       x = ((x2 - x1) * (u2 - u1) * (v1 - y1) + (y2 - y1) * (u2 - u1) * x1 - (v2 - v1) * (x2 - x1) * u1) / denominator;
       y = ((y2 - y1) * (v2 - v1) * (u1 - x1) + (x2 - x1) * (v2 - v1) * y1 - (u2 - u1) * (y2 - y1) * v1) / denominator;
-      if ((x - u1) * (x - u2) <= 0 && (y - v1) * (y - v2) <= 0) {
+      if ((x - u1) * (x - u2) <= 0 && (y - v1) * (y - v2) <= 0 && (x2 - x1) * u1 > 0) {
         this.auto_kickoff = true;
         this.kickoff_delay = 50;
         return true;
