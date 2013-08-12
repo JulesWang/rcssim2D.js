@@ -720,26 +720,6 @@
       }
     };
 
-    Athom.prototype.dribble = function(ball) {
-      var anglem2b, delta, dis, me2ball;
-      me2ball = Vector2d.subtract(ball, this.mypos);
-      anglem2b = Math.atan2(me2ball[1], me2ball[0]);
-      dis = Vector2d.distance(ball, this.mypos);
-      delta = Math.normaliseRadians(anglem2b - this.mydir);
-      if (Math.abs(delta) < this.eps) {
-        console.log("---");
-        console.log(delta);
-        console.log(this.eps);
-        return {
-          kick: 1
-        };
-      } else {
-        return {
-          turn: delta
-        };
-      }
-    };
-
     Athom.prototype.passable_player_pos = function(ball) {
       var dis, i, min, num, player, the_player, _i, _len, _ref;
       min = 100000;
@@ -789,7 +769,7 @@
             };
           } else {
             return {
-              kick: 0.6
+              kick: 1.4
             };
           }
         } else {
@@ -797,9 +777,9 @@
             turn: delta2
           };
         }
-      } else if (Math.abs(delta_m2p) < this.eps && m2bdis < BALL_R + PLAYER_R + 3 && b2gdis < 500 && b2pdis > 30) {
+      } else if (Math.abs(delta_m2p) < this.eps / 2 && m2bdis < BALL_R + PLAYER_R + 3 && b2gdis < 500 && b2pdis > 30) {
         delta2 = Math.normaliseRadians(anglem2b - this.mydir);
-        if (Math.abs(delta2) < this.eps) {
+        if (Math.abs(delta2) < this.eps / 2) {
           return {
             kick: 2
           };

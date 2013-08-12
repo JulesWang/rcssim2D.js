@@ -124,12 +124,12 @@ class Athom
                                 if b2gdis < 180
                                         return {kick:30}
                                 else
-                                        return {kick:0.6}
+                                        return {kick:1.4}
                         else
                                 return {turn:delta2}
-                else if Math.abs(delta_m2p) < @eps and m2bdis < BALL_R + PLAYER_R + 3 and b2gdis <500  and b2pdis > 30
+                else if Math.abs(delta_m2p) < @eps/2 and m2bdis < BALL_R + PLAYER_R + 3 and b2gdis <500  and b2pdis > 30
                         delta2 = Math.normaliseRadians(anglem2b-@mydir)
-                        if Math.abs(delta2) < @eps
+                        if Math.abs(delta2) < @eps/2
                                 return {kick:2}
                         else
                                 return {turn:delta2}
