@@ -1075,7 +1075,6 @@
             break;
           }
           if (x.r + y.r - d < 1) {
-            console.log(i);
             left = c - i;
             x.p = p1;
             y.p = p2;
