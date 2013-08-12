@@ -73,6 +73,25 @@ class WorldModel
                 m2 = y.m
                 v1 = x.v
                 v2 = y.v
+                left = 0
+
+                if x.r + y.r - dis > 1
+                        c = 15
+                        for i in [0...c]
+                                dv1 = Vector2d.divide(v1, x.decay*c/i)
+                                dv2 = Vector2d.divide(v2, y.decay*c/i)
+                                p1 = Vector2d.subtract(x.p, dv1)
+                                p2 = Vector2d.subtract(y.p, dv2)
+                                d = Vector2d.distance(p1, p2)
+                                if x.r + y.r - d < 0
+                                        #console.log('subdivide failed')
+                                        break
+                                if x.r + y.r - d < 1
+                                        console.log(i)
+                                        left = c - i
+                                        x.p = p1
+                                        y.p = p2
+                                        break
 
                
                 normal = Vector2d.unit(Vector2d.subtract(x.p,y.p))
@@ -106,4 +125,9 @@ class WorldModel
                 # Move objs so they no longer overlap.
                 x.p = Vector2d.add(x.p, Vector2d.multiply(normal, -overlap*x.r/(x.r+y.r)))
                 y.p = Vector2d.add(y.p, Vector2d.multiply(normal, overlap*y.r/(x.r+y.r)))
-        
+
+
+                if left
+                        x.p = Vector2d.add(x.p, Vector2d.multiply(x.v, left/c))
+                        y.p = Vector2d.add(y.p, Vector2d.multiply(x.v, left/c))
+                        

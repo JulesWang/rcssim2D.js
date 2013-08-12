@@ -14,6 +14,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+debug = false
+debug_left_team = 'Foo'
+debug_right_team = 'Bar'
+
 main = () ->
         width = 1280.0
         height = 800.0
@@ -68,8 +72,12 @@ main = () ->
                 host_color = 'black'
                 guest_color = 'blue'
 
-                left = left_select.options[left_select.selectedIndex].text
-                right = right_select.options[right_select.selectedIndex].text
+                if debug
+                        left = debug_left_team if debug
+                        right = debug_right_team if debug
+                else
+                        left = left_select.options[left_select.selectedIndex].text
+                        right = right_select.options[right_select.selectedIndex].text
 
                 pitch.board.left_teamname = left
                 pitch.board.right_teamname = right
@@ -88,6 +96,7 @@ main = () ->
 
                 world.reset()
 
+        start_game() if debug
 
         setInterval ()->
                 gameloop(world, canvas)
