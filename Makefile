@@ -16,6 +16,8 @@ SERVER+= src/keyhandle.coffee
 
 CLIENT+= teams/*.coffee
 CLIENT+= formations/442.coffee
+CLIENT+= formations/235.coffee
+CLIENT+= formations/523.coffee
 CLIENT+= src/math.coffee
 CLIENT+= src/vector2d.coffee
 
