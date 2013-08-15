@@ -60,4 +60,7 @@ Send pull request when you are ready to go.
 If the code is merged, your team becomes the memeber of league consequentially.
 
 
+Wishlist
+==========
 
+* Log player
