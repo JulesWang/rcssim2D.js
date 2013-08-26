@@ -19,12 +19,12 @@ class Player
                 @fc = 'grey'
                 @sc = 'black'
                 @m = 5.0 #kg
-                @r = 7.0
+                @r = 6.5
                 @t = 'none'
                 @v = [0, 0]
                 @decay = 0.4
                 @maxdashforce = 6
-                @maxkickforce = 2.4
+                @maxkickforce = 2.2
                 @maxturnangle = 0.1
                 @force = 0
                 @kickforce = 0

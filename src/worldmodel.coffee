@@ -62,7 +62,7 @@ class WorldModel
                 return if not x.r
                 return if not y.r
                 dis = Vector2d.distance(x.p, y.p)
-                return if dis > x.r+y.r
+                return if dis >= x.r+y.r
 
                 # hack
                 if x.r > y.r and x.side
@@ -75,8 +75,8 @@ class WorldModel
                 v2 = y.v
                 left = 0
 
-                if x.r + y.r - dis > 1
-                        c = 15
+                if x.r + y.r - dis > 0.5
+                        c = 20
                         for i in [0...c]
                                 dv1 = Vector2d.divide(v1, x.decay*c/i)
                                 dv2 = Vector2d.divide(v2, y.decay*c/i)
@@ -109,7 +109,7 @@ class WorldModel
                 # m1*e(v1a - v2a) = -m1v1a-m2v2a + m2v2c + v2c*m1
                 # m1*e(v1a - v2a)+m1v1a + m2v2a = m2v2c + v2c*m1
                 # m1*e(v1a - v2a)+m1v1a + m2v2a/ (m2 + m1) = v2c
-                v2c = (m1*0.2*(v1a - v2a) + m1*v1a + m2*v2a) / (m2 + m1)
+                v2c = (m1*0.3*(v1a - v2a) + m1*v1a + m2*v2a) / (m2 + m1)
                 v1c = (m1*v1a + m2*v2a - m2*v2c) / m1
                 
                 #angle = Math.atan2(normal[y], normal[0])

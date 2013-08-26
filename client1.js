@@ -300,11 +300,11 @@
 
   BALL_R = 2.5;
 
-  PLAYER_R = 7;
+  PLAYER_R = 6.5;
 
   MAX_DASH_FORCE = 6;
 
-  MAX_KICK_FORCE = 2.4;
+  MAX_KICK_FORCE = 2.2;
 
   GOAL_WIDTH = 140.2;
 

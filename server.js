@@ -130,12 +130,12 @@
       this.fc = 'grey';
       this.sc = 'black';
       this.m = 5.0;
-      this.r = 7.0;
+      this.r = 6.5;
       this.t = 'none';
       this.v = [0, 0];
       this.decay = 0.4;
       this.maxdashforce = 6;
-      this.maxkickforce = 2.4;
+      this.maxkickforce = 2.2;
       this.maxturnangle = 0.1;
       this.force = 0;
       this.kickforce = 0;
@@ -1049,7 +1049,7 @@
         return;
       }
       dis = Vector2d.distance(x.p, y.p);
-      if (dis > x.r + y.r) {
+      if (dis >= x.r + y.r) {
         return;
       }
       if (x.r > y.r && x.side) {
@@ -1063,8 +1063,8 @@
       v1 = x.v;
       v2 = y.v;
       left = 0;
-      if (x.r + y.r - dis > 1) {
-        c = 15;
+      if (x.r + y.r - dis > 0.5) {
+        c = 20;
         for (i = _i = 0; 0 <= c ? _i < c : _i > c; i = 0 <= c ? ++_i : --_i) {
           dv1 = Vector2d.divide(v1, x.decay * c / i);
           dv2 = Vector2d.divide(v2, y.decay * c / i);
@@ -1088,7 +1088,7 @@
       v1b = Vector2d.dot(v1, tangent);
       v2a = Vector2d.dot(v2, normal);
       v2b = Vector2d.dot(v2, tangent);
-      v2c = (m1 * 0.2 * (v1a - v2a) + m1 * v1a + m2 * v2a) / (m2 + m1);
+      v2c = (m1 * 0.3 * (v1a - v2a) + m1 * v1a + m2 * v2a) / (m2 + m1);
       v1c = (m1 * v1a + m2 * v2a - m2 * v2c) / m1;
       x.v[0] = v1c * normal[0] + v1b * tangent[0];
       x.v[1] = v1c * normal[1] + v1b * tangent[1];
