@@ -1,16 +1,16 @@
 
-class Foo
+class Gao
         constructor:(num, side) ->
                 # DO NOT MODIFY FOLLOWING VARIBLE NAMES
                 # choose a nice name for your team
-                @teamname = 'Foo'
+                @teamname = 'Gao'
                 # choose a distinctive color for your team
-                @fill_color = 'red'
+                @fill_color = '#32CD32'
                 @teamnum = num
                 @side = side
                 #--------------------------------------
 
-                @fmt = new Fmt442()
+                @fmt = new Fmt523()
                 @eps = Math.PI/6
 
         getfmtpos:(bp) ->
@@ -23,8 +23,10 @@ class Foo
 
                 if @side is 'left'
                         @teammates = @wm.leftplayers
+                        @opteam = @wm.rightplayers
                 else #if @side is 'right'
                         @teammates = @wm.rightplayers
+                        @opteam = @wm.leftplayers
                 @mypos = @teammates[@teamnum]
                 @mydir = @wm.mydir
 
@@ -78,6 +80,11 @@ class Foo
                 else
                         return {turn:delta}
 
+        dis_op2b_opplayer_near_ball:(ball) ->
+                opnum = player_near_ball(@opteam,ball)
+                opplayer = @opteam[opnum]
+                dis = Vector2d.distance(ball,opplayer)
+
         go_and_kick:(ball) ->
                 goal2ball = Vector2d.subtract(ball, OP_GOAL_POS)
                 unit = Vector2d.unit(goal2ball)
@@ -90,11 +97,25 @@ class Foo
 
                 delta1 = Math.normaliseRadians(angleb2g-anglem2b)
                 dis = Vector2d.distance(ball, @mypos)
+                disb2g= Vector2d.distance(ball,OP_GOAL_POS)
 
+                disop = @dis_op2b_opplayer_near_ball(ball) 
                 if Math.abs(delta1) < @eps and dis < BALL_R + PLAYER_R + 3
                         delta2 = Math.normaliseRadians(anglem2b-@mydir)
                         if Math.abs(delta2) < @eps
-                                return {kick:MAX_KICK_FORCE}
+                                if @teamnum is 0
+                                        if dis < BALL_R+PLAYER_R
+                                                return {kick:MAX_KICK_FORCE}
+                                        return {suck:1}
+                                if disb2g < PENALTY_AREA_LENGTH-PLAYER_R
+                                        return {kick:MAX_KICK_FORCE}
+                                # if disop < BALL_R + PLAYER_R + 3  
+                                #         return {kick:MAX_KICK_FORCE}
+                                if disop > dis and dis > PITCH_HALF_LENGTH/4
+                                        return @goto(gopos)
+                                if Math.abs(disop-dis) > BALL_R and disop < BALL_R + PLAYER_R + 3
+                                        return {kick:MAX_KICK_FORCE}
+                                return {kick:MAX_KICK_FORCE/2}
                         else
                                 return {turn:delta2}
                 else
