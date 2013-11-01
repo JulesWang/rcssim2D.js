@@ -23,7 +23,8 @@ class Ball
                 @p = [x, y]
                 @v = [0, 0]
                 @decay = 0.94
-                @last_pos = @p
+                @last_p = @p
+                @last_v = @v
                 
                 
         acc: (dir, force) ->
@@ -42,7 +43,8 @@ class Ball
 
         update: () ->
                 #Simulate Friction. Make sure the speed is positive 
-                @last_pos = @p
+                @last_p = clone(@p)
+                @last_v = clone(@v)
                 if Vector2d.len(@v) > 1e-3
                         ds = @v
                         @p = Vector2d.add(@p, ds)
@@ -51,4 +53,6 @@ class Ball
         reset: () ->
                 @p = [0,0]
                 @v = [0,0]
+                @last_p = [0,0]
+                @last_v = [0,0]
                 

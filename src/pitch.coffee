@@ -334,7 +334,7 @@ class Pitch
                                 else
                                         y = -@pitch_width / 2
 
-                                x = @wm.ball.last_pos[0]
+                                x = @wm.ball.last_p[0]
                                 @wm.ball.reset()
                                 @wm.ball.p = [x, y]
                                 if @last_touch_ball is 'left'
@@ -383,8 +383,8 @@ class Pitch
                         
 
         is_goal: (ball, l1, l2) ->
-                x1 = ball.last_pos[0]
-                y1 = ball.last_pos[1]
+                x1 = ball.last_p[0]
+                y1 = ball.last_p[1]
                 x2 = ball.p[0]
                 y2 = ball.p[1]
                 u1 = l1[0]

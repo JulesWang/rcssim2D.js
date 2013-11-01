@@ -75,24 +75,19 @@ class WorldModel
                 v2 = y.v
                 left = 0
 
-                if x.r + y.r - dis > 0.5
-                        c = 20
-                        for i in [0...c]
-                                dv1 = Vector2d.divide(v1, x.decay*c/i)
-                                dv2 = Vector2d.divide(v2, y.decay*c/i)
-                                p1 = Vector2d.subtract(x.p, dv1)
-                                p2 = Vector2d.subtract(y.p, dv2)
-                                d = Vector2d.distance(p1, p2)
-                                if x.r + y.r - d < 0
-                                        #console.log('subdivide failed')
-                                        break
-                                if x.r + y.r - d < 1
-                                        left = c - i
-                                        x.p = p1
-                                        y.p = p2
-                                        break
+                c = 10
+                for i in [1..c]
+                        dv1 = Vector2d.multiply(x.last_v, i/c)
+                        dv2 = Vector2d.multiply(y.last_v, i/c)
+                        p1 = Vector2d.subtract(x.p, dv1)
+                        p2 = Vector2d.subtract(y.p, dv2)
+                        d = Vector2d.distance(p1, p2)
+                        if  d - x.r - y.r > 0
+                                left = c - i
+                                x.p = p1
+                                y.p = p2
+                                break
 
-               
                 normal = Vector2d.unit(Vector2d.subtract(x.p,y.p))
                 tangent = [-normal[1], normal[0]]
 
@@ -100,17 +95,14 @@ class WorldModel
                 v1b = Vector2d.dot(v1, tangent)
                 v2a = Vector2d.dot(v2, normal)
                 v2b = Vector2d.dot(v2, tangent)
+                if v1a > v2a
+                    return
                 # m1v1a + m2v2a = m1v1c + m2v2c
-                # v1c = (m1v1a + m2v2a - m2v2c) / m1
-
                 # e -> elastic coefficient
                 # e = (-v1c + v2c)/(v1a - v2a)
-                # e(v1a - v2a) = (-(m1v1a+m2v2a - m2v2c) / m1 + v2c)
-                # m1*e(v1a - v2a) = -m1v1a-m2v2a + m2v2c + v2c*m1
-                # m1*e(v1a - v2a)+m1v1a + m2v2a = m2v2c + v2c*m1
-                # m1*e(v1a - v2a)+m1v1a + m2v2a/ (m2 + m1) = v2c
-                v2c = (m1*0.3*(v1a - v2a) + m1*v1a + m2*v2a) / (m2 + m1)
-                v1c = (m1*v1a + m2*v2a - m2*v2c) / m1
+                e = 0.4
+                v1c = v1a - (1+e)*(m2/(m1+m2))*(v1a - v2a)
+                v2c = v2a + (1+e)*(m1/(m1+m2))*(v1a - v2a)
                 
                 #angle = Math.atan2(normal[y], normal[0])
                 x.v[0] = v1c*normal[0] + v1b*tangent[0]
@@ -128,5 +120,5 @@ class WorldModel
 
                 if left
                         x.p = Vector2d.add(x.p, Vector2d.multiply(x.v, left/c))
-                        y.p = Vector2d.add(y.p, Vector2d.multiply(x.v, left/c))
+                        y.p = Vector2d.add(y.p, Vector2d.multiply(y.v, left/c))
                         

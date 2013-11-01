@@ -35,6 +35,7 @@ class Player
                 @p = @transpos(p)
                 @d = @transdir(dir)
                 @initpos = clone(@p)
+                @last_v = clone(@v)
 
         reset:() ->
                 @p = clone(@initpos)
@@ -70,6 +71,7 @@ class Player
                 if @wm.selected != this
                         @take_action()
                     
+                @last_v = clone(@v)
                 if Vector2d.len(@v) > 1e-5
                         ds = @v
                         @p = Vector2d.add(@p, ds)
