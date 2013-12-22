@@ -64,3 +64,4 @@ Wishlist
 ==========
 
 * Log player
+
